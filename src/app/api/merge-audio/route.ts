@@ -6,6 +6,24 @@ import path from 'path';
 
 const execAsync = promisify(exec);
 
+// Get FFmpeg path - use bundled version from node_modules
+function getFFmpegPath(): string {
+  const platform = process.platform;
+  const arch = process.arch;
+  let platformDir = 'linux-x64';
+
+  if (platform === 'darwin') {
+    platformDir = arch === 'arm64' ? 'darwin-arm64' : 'darwin-x64';
+  } else if (platform === 'win32') {
+    platformDir = 'win32-x64';
+  }
+
+  return path.join(process.cwd(), 'node_modules', '@ffmpeg-installer', platformDir, 'ffmpeg');
+}
+
+const ffmpegPath = getFFmpegPath();
+const ffprobePath = ffmpegPath.replace(/ffmpeg$/, 'ffprobe');
+
 // Check if file exists
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -20,7 +38,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 async function getAudioDuration(filePath: string): Promise<number> {
   try {
     const { stdout } = await execAsync(
-      `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
+      `"${ffprobePath}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
     );
     return parseFloat(stdout.trim()) || 0;
   } catch (error) {
@@ -62,7 +80,7 @@ export async function POST(request: NextRequest) {
       // - Mix ambient at lower volume (0.3) behind voiceover
       try {
         await execAsync(
-          `ffmpeg -y -i "${voiceoverPath}" -stream_loop -1 -i "${ambientPath}" -filter_complex "[1:a]volume=0.25[ambient];[0:a][ambient]amix=inputs=2:duration=first:dropout_transition=3[out]" -map "[out]" -t ${voiceoverDuration} -c:a libmp3lame -q:a 2 "${mergedPath}"`
+          `"${ffmpegPath}" -y -i "${voiceoverPath}" -stream_loop -1 -i "${ambientPath}" -filter_complex "[1:a]volume=0.25[ambient];[0:a][ambient]amix=inputs=2:duration=first:dropout_transition=3[out]" -map "[out]" -t ${voiceoverDuration} -c:a libmp3lame -q:a 2 "${mergedPath}"`
         );
       } catch (ffmpegError) {
         console.error('FFmpeg merge error, falling back to voiceover only:', ffmpegError);
@@ -78,7 +96,7 @@ export async function POST(request: NextRequest) {
     const sampleStart = Math.max(0, (voiceoverDuration / 2) - 5);
     try {
       await execAsync(
-        `ffmpeg -y -i "${mergedPath}" -ss ${sampleStart} -t 10 -c:a libmp3lame -q:a 2 "${samplePath}"`
+        `"${ffmpegPath}" -y -i "${mergedPath}" -ss ${sampleStart} -t 10 -c:a libmp3lame -q:a 2 "${samplePath}"`
       );
     } catch (sampleError) {
       console.error('Error creating sample, copying full file:', sampleError);

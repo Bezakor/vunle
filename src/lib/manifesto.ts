@@ -7,68 +7,68 @@ export interface ManifestoBeat {
 
 export const manifesto: ManifestoBeat[] = [
   {
-    id: 'surprise',
-    lines: ["Here's something surprising:"],
-    size: 'md',
-  },
-  {
     id: 'brain',
-    lines: ["Your brain can't tell the difference", 'between a real memory…', 'and an imagined one.'],
+    lines: [
+      "Your brain can't tell the difference",
+      'between a real memory…',
+      'and an imagined one.',
+      "Here's how the world's most successful athletes, entrepreneurs, artists, and creatives",
+    ],
     size: 'xl',
     serif: true,
   },
   {
     id: 'athletes',
     lines: [
-      "This is why the world's top athletes and successful people",
-      'use guided visualizations every single day.',
+      'They use guided visualizations every single day.',
       'They rehearse the future in their mind until it feels familiar —',
       'and the body follows.',
+      "Here's 5 case studies",
     ],
     size: 'md',
   },
   {
     id: 'rehearsal',
-    lines: ["Visualization isn't magic.", 'It’s mental rehearsal.', 'It’s training your nervous system for the life you want.'],
+    lines: [
+      "Visualization isn't magic.",
+      'It’s mental rehearsal.',
+      'It’s training your nervous system for the life you want.',
+      'But here’s the big problem…',
+    ],
     size: 'lg',
     serif: true,
   },
   {
     id: 'problem',
     lines: [
-      'But here’s the problem:',
       'Most people try to visualize using random videos made for “everyone.”',
       'Generic voices. Generic goals. Generic scripts.',
+      'But your dreams aren’t generic.',
+      'So your inner voice shouldn’t be either.',
     ],
     size: 'md',
-  },
-  {
-    id: 'notgeneric',
-    lines: ["Your mind isn't generic.", "Your dreams aren't generic.", "Your inner voice shouldn't be either."],
-    size: 'xl',
-    serif: true,
   },
   {
     id: 'exists',
-    lines: ['That’s why Vunle exists.'],
-    size: 'lg',
+    lines: [
+      'That’s why Vunle exists.',
+      'Vunle creates a guided visualization made only for you.',
+      'Because the most important conversation',
+      'is the one you have with yourself.',
+      'Here’s how it works…',
+    ],
+    size: 'md',
     serif: true,
   },
   {
-    id: 'made-for-you',
+    id: 'audio-journey',
     lines: [
-      'Vunle creates a guided visualization made only for you.',
       'You simply tell it what you want…',
       'and it builds a personalized audio journey',
       'that speaks directly to your subconscious.',
+      'There are 3 quick steps…',
     ],
     size: 'md',
-  },
-  {
-    id: 'conversation',
-    lines: ['Because the most important conversation', 'is the one you have with yourself.'],
-    size: 'xl',
-    serif: true,
   },
 ];
 

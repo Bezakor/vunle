@@ -1,8 +1,8 @@
 export interface CaseStudy {
   id: string;
   name: string;
+  title: string;
   initials: string;
-  method: string;
   headline: string;
   isQuote: boolean;
   description: string;
@@ -12,8 +12,8 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'jordan',
     name: 'Michael Jordan',
+    title: 'NBA Hall-of-Fame Athlete',
     initials: 'MJ',
-    method: 'Mental Rehearsal',
     isQuote: true,
     headline:
       'I visualized where I wanted to be, what kind of player I wanted to become. I knew exactly where I wanted to go, and I focused on getting there.',
@@ -23,9 +23,9 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'gaga',
     name: 'Lady Gaga',
+    title: 'Musician, Artist',
     initials: 'LG',
-    method: 'Acting As If',
-    isQuote: false,
+    isQuote: true,
     headline: 'Acting as if it’s already real.',
     description:
       'Early in her career, she visualized her fame and rehearsed performances as though she were already a global icon — anchoring that mental image until it became her reality.',
@@ -33,8 +33,8 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'robbins-tony',
     name: 'Tony Robbins',
+    title: 'Speaker, Philanthropist',
     initials: 'TR',
-    method: 'Vivid Visualization',
     isQuote: true,
     headline: 'Your imagination is ten times more potent than your willpower.',
     description:
@@ -43,8 +43,8 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'robbins-mel',
     name: 'Mel Robbins',
+    title: 'Author, Host',
     initials: 'MR',
-    method: 'Rehearsing the Hard Part',
     isQuote: true,
     headline:
       'Your fears are already manifesting against you — flip it by vividly imagining the best case instead of the worst.',
@@ -54,8 +54,8 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'dispenza',
     name: 'Dr. Joe Dispenza',
+    title: 'Neuroscientist, Author',
     initials: 'JD',
-    method: 'Mental Rehearsal, Proven',
     isQuote: true,
     headline:
       'The brain and the body do not know the difference between having an actual experience in your physical world and creating an experience by thought alone.',

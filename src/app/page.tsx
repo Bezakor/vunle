@@ -58,7 +58,7 @@ export default function Home() {
           transition={{ duration: 1, delay: 1.1 }}
           className="animate-bounce-gentle mt-16 flex flex-col items-center gap-2 text-[var(--dream-muted)]"
         >
-          <span className="text-xs uppercase tracking-[0.25em]">Read our manifesto</span>
+          <span className="text-xs uppercase tracking-[0.25em]">Here&apos;s something surprising:</span>
           <span aria-hidden>↓</span>
         </motion.div>
       </section>
@@ -82,16 +82,6 @@ export default function Home() {
 
       {/* How it works */}
       <section data-snap-target="" className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
-        <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
-          className="mb-16 text-center text-2xl font-serif italic text-balance md:text-4xl"
-        >
-          How it works — in 3 quick steps
-        </motion.h2>
-
         <div className="grid w-full max-w-4xl gap-8 md:grid-cols-3">
           {howItWorks.map((item, i) => (
             <motion.div

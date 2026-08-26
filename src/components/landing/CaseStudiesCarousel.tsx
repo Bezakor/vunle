@@ -158,15 +158,14 @@ export default function CaseStudiesCarousel() {
                 {study.initials}
               </div>
 
-              <p className="mt-6 text-xs uppercase tracking-[0.25em] text-[var(--dream-primary)]">{study.method}</p>
-
-              <p className="mt-4 line-clamp-5 font-serif text-2xl italic leading-snug text-balance">
+              <p className="mt-6 line-clamp-5 font-serif text-2xl italic leading-snug text-balance">
                 {study.isQuote ? `“${study.headline}”` : study.headline}
               </p>
 
               <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">{study.description}</p>
 
               <p className="mt-6 text-sm font-medium">{study.name}</p>
+              <p className="text-xs text-[var(--dream-muted)]">{study.title}</p>
             </motion.div>
           </AnimatePresence>
         </div>

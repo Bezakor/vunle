@@ -37,9 +37,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# waitlist signups
-/data/
-
 # Generated meditation audio files (but keep ambient tracks)
 /public/audio/*
 !/public/audio/ambient

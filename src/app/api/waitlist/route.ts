@@ -1,24 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import crypto from 'crypto';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'waitlist.json');
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-interface WaitlistEntry {
-  email: string;
-  createdAt: string;
-}
-
-async function readEntries(): Promise<WaitlistEntry[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -28,12 +11,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
   }
 
-  const entries = await readEntries();
+  const apiKey = process.env.MAILCHIMP_API_KEY;
+  const serverPrefix = process.env.MAILCHIMP_SERVER_PREFIX;
+  const audienceId = process.env.MAILCHIMP_AUDIENCE_ID;
 
-  if (!entries.some((entry) => entry.email === email)) {
-    entries.push({ email, createdAt: new Date().toISOString() });
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.writeFile(DATA_FILE, JSON.stringify(entries, null, 2));
+  if (!apiKey || !serverPrefix || !audienceId) {
+    console.error('Mailchimp env vars are not configured.');
+    return NextResponse.json({ error: 'Waitlist signup is not configured yet.' }, { status: 500 });
+  }
+
+  const subscriberHash = crypto.createHash('md5').update(email).digest('hex');
+  const url = `https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members/${subscriberHash}`;
+
+  const mailchimpResponse = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`,
+    },
+    body: JSON.stringify({
+      email_address: email,
+      status_if_new: 'subscribed',
+    }),
+  });
+
+  if (!mailchimpResponse.ok) {
+    const errorBody = await mailchimpResponse.json().catch(() => null);
+    console.error('Mailchimp error:', errorBody);
+
+    if (errorBody?.title === 'Member In Compliance State') {
+      return NextResponse.json(
+        { error: 'This email can’t be re-added automatically — please contact us directly.' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

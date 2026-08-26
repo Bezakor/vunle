@@ -57,15 +57,11 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'made-for-you',
     lines: [
-      'Vunle creates a guided visualization made only for you —',
-      'your goal, your tone, your timeline, your emotion.',
-      'Designed to help you step into the future you’re trying to create.',
+      'Vunle creates a guided visualization made only for you.',
+      'You simply tell it what you want…',
+      'and it builds a personalized audio journey',
+      'that speaks directly to your subconscious.',
     ],
-    size: 'md',
-  },
-  {
-    id: 'subconscious',
-    lines: ['You simply tell it what you want…', 'and it builds a personalized audio journey', 'that speaks directly to your subconscious.'],
     size: 'md',
   },
   {

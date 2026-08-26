@@ -1,300 +1,128 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { questions } from '@/lib/questions';
-import { OnboardingAnswers, GenerationStatus, GeneratedMeditation } from '@/types';
-import QuestionCard from '@/components/QuestionCard';
-import ProgressBar from '@/components/ProgressBar';
-import GeneratingScreen from '@/components/GeneratingScreen';
-import ResultScreen from '@/components/ResultScreen';
-
-const initialAnswers: OnboardingAnswers = {
-  name: '',
-  intention: '',
-  stressLevel: '',
-  preferredScene: '',
-  duration: '',
-  voiceGender: '',
-  specificFocus: '',
-};
+import { motion } from 'framer-motion';
+import { manifesto, howItWorks } from '@/lib/manifesto';
+import ManifestoSection from '@/components/landing/ManifestoSection';
+import WaitlistBar from '@/components/landing/WaitlistBar';
+import DreamField from '@/components/landing/DreamField';
 
 export default function Home() {
-  const [started, setStarted] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<OnboardingAnswers>(initialAnswers);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStatus, setGenerationStatus] = useState<GenerationStatus>({
-    step: 'idle',
-    message: '',
-    progress: 0,
-  });
-  const [meditation, setMeditation] = useState<GeneratedMeditation | null>(null);
+  return (
+    <div className="dream-page relative min-h-screen">
+      <DreamField />
 
-  const handleAnswer = (questionId: keyof OnboardingAnswers, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
+      {/* Hero */}
+      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+          className="mb-6 text-sm uppercase tracking-[0.3em] text-[var(--dream-muted)]"
+        >
+          Vunle
+        </motion.p>
 
-  const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-    } else {
-      handleGenerate();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-    }
-  };
-
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-
-    try {
-      // Step 1: Generate script
-      setGenerationStatus({
-        step: 'generating-script',
-        message: 'Crafting your personalized meditation script...',
-        progress: 10,
-      });
-
-      const scriptResponse = await fetch('/api/generate-script', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(answers),
-      });
-
-      if (!scriptResponse.ok) {
-        throw new Error('Failed to generate script');
-      }
-
-      const { script, meditationId } = await scriptResponse.json();
-
-      // Step 2: Generate voiceover
-      setGenerationStatus({
-        step: 'generating-voice',
-        message: 'Creating your soothing voiceover...',
-        progress: 30,
-      });
-
-      const voiceResponse = await fetch('/api/generate-voice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          script,
-          voiceGender: answers.voiceGender,
-          meditationId,
-        }),
-      });
-
-      if (!voiceResponse.ok) {
-        throw new Error('Failed to generate voiceover');
-      }
-
-      const { voiceoverUrl, duration } = await voiceResponse.json();
-
-      // Step 3: Generate ambient audio
-      setGenerationStatus({
-        step: 'generating-ambient',
-        message: 'Composing ambient soundscape...',
-        progress: 60,
-      });
-
-      const ambientResponse = await fetch('/api/generate-ambient', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scene: answers.preferredScene,
-          duration,
-          meditationId,
-        }),
-      });
-
-      if (!ambientResponse.ok) {
-        throw new Error('Failed to generate ambient audio');
-      }
-
-      const { ambientUrl } = await ambientResponse.json();
-
-      // Step 4: Merge audio
-      setGenerationStatus({
-        step: 'merging',
-        message: 'Blending your meditation experience...',
-        progress: 85,
-      });
-
-      const mergeResponse = await fetch('/api/merge-audio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          voiceoverUrl,
-          ambientUrl,
-          meditationId,
-        }),
-      });
-
-      if (!mergeResponse.ok) {
-        throw new Error('Failed to merge audio');
-      }
-
-      const { mergedUrl, sampleUrl } = await mergeResponse.json();
-
-      setGenerationStatus({
-        step: 'complete',
-        message: 'Your meditation is ready!',
-        progress: 100,
-      });
-
-      setMeditation({
-        id: meditationId,
-        script,
-        voiceoverUrl,
-        ambientUrl,
-        mergedUrl,
-        sampleUrl,
-        duration,
-        createdAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Generation error:', error);
-      setGenerationStatus({
-        step: 'error',
-        message: error instanceof Error ? error.message : 'Something went wrong. Please try again.',
-        progress: 0,
-      });
-    }
-  };
-
-  const handleReset = () => {
-    setStarted(false);
-    setCurrentQuestion(0);
-    setAnswers(initialAnswers);
-    setIsGenerating(false);
-    setGenerationStatus({ step: 'idle', message: '', progress: 0 });
-    setMeditation(null);
-  };
-
-  // Landing screen
-  if (!started) {
-    return (
-      <div className="min-h-screen animated-gradient-bg flex items-center justify-center p-4">
-        <motion.div
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-2xl"
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
+          className="max-w-3xl text-4xl leading-tight font-serif italic text-balance md:text-6xl"
         >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mb-8"
-          >
-            <span className="text-6xl">🧘</span>
-          </motion.div>
+          Personal goals need personal visualizations.
+        </motion.h1>
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="gradient-text">MindScape</span>
-          </h1>
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.35 }}
+          className="mt-8 max-w-xl text-lg text-[var(--dream-muted)] md:text-xl"
+        >
+          Create a personalized visualization audio guide for your specific goal.
+          <br />
+          Because your mind isn&rsquo;t generic — and your inner voice shouldn&rsquo;t be either.
+        </motion.p>
 
-          <p className="text-lg md:text-xl text-gray-400 mb-8">
-            Create personalized guided meditations crafted just for you using AI.
-            Answer a few questions and receive a unique meditation experience.
-          </p>
-
-          <motion.button
-            onClick={() => setStarted(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-lg font-medium transition-colors animate-pulse-glow"
-          >
-            Begin Your Journey
-          </motion.button>
-
-          <p className="mt-8 text-sm text-gray-500">
-            Takes about 2 minutes to complete
-          </p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="animate-bounce-gentle mt-16 flex flex-col items-center gap-2 text-[var(--dream-muted)]"
+        >
+          <span className="text-xs uppercase tracking-[0.25em]">Read our manifesto</span>
+          <span aria-hidden>↓</span>
         </motion.div>
-      </div>
-    );
-  }
+      </section>
 
-  // Generating screen
-  if (isGenerating && generationStatus.step !== 'complete') {
-    return (
-      <GeneratingScreen
-        status={generationStatus}
-        onRetry={handleGenerate}
-      />
-    );
-  }
+      {/* Manifesto — scroll story */}
+      <section className="relative">
+        {manifesto.map((beat) => (
+          <ManifestoSection key={beat.id} beat={beat} />
+        ))}
+      </section>
 
-  // Result screen
-  if (meditation) {
-    return (
-      <ResultScreen
-        meditation={meditation}
-        userName={answers.name}
-        onCreateNew={handleReset}
-      />
-    );
-  }
+      {/* How it works */}
+      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
+          className="mb-16 text-center text-2xl font-serif italic text-balance md:text-4xl"
+        >
+          How it works — in 3 quick steps
+        </motion.h2>
 
-  // Onboarding questions
-  const question = questions[currentQuestion];
-  const canProceed =
-    question.type === 'textarea' || answers[question.id]?.trim() !== '';
-
-  return (
-    <div className="min-h-screen animated-gradient-bg flex flex-col">
-      <ProgressBar
-        current={currentQuestion + 1}
-        total={questions.length}
-      />
-
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <AnimatePresence mode="wait">
-            <QuestionCard
-              key={question.id}
-              question={question}
-              value={answers[question.id]}
-              onChange={(value) => handleAnswer(question.id, value)}
-              onNext={handleNext}
-              canProceed={canProceed}
-            />
-          </AnimatePresence>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex justify-between mt-8"
-          >
-            <button
-              onClick={handlePrevious}
-              disabled={currentQuestion === 0}
-              className="px-6 py-2 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        <div className="grid w-full max-w-4xl gap-8 md:grid-cols-3">
+          {howItWorks.map((item, i) => (
+            <motion.div
+              key={item.step}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, ease: 'easeOut', delay: i * 0.15 }}
+              className="waitlist-glass rounded-3xl p-8 text-center"
             >
-              ← Back
-            </button>
-
-            <span className="text-gray-500">
-              {currentQuestion + 1} of {questions.length}
-            </span>
-
-            <button
-              onClick={handleNext}
-              disabled={!canProceed}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-            >
-              {currentQuestion === questions.length - 1 ? 'Create Meditation' : 'Next →'}
-            </button>
-          </motion.div>
+              <span className="font-serif text-3xl italic text-[var(--dream-primary)]">{item.step}</span>
+              <h3 className="mt-4 text-lg font-medium">{item.title}</h3>
+              <p className="mt-2 text-sm text-[var(--dream-muted)]">{item.detail}</p>
+            </motion.div>
+          ))}
         </div>
-      </div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.9, delay: 0.6 }}
+          className="mt-14 max-w-md text-center text-sm text-[var(--dream-muted)]"
+        >
+          Your personalized visualization guide, sent straight to your inbox.
+        </motion.p>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+          className="max-w-xl text-3xl font-serif italic text-balance md:text-5xl"
+        >
+          Vunle isn&rsquo;t live yet — but the waitlist is.
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+          className="mt-6 max-w-md text-[var(--dream-muted)]"
+        >
+          Be first to create a visualization built entirely around you.
+        </motion.p>
+      </section>
+
+      <WaitlistBar />
     </div>
   );
 }

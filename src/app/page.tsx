@@ -38,9 +38,19 @@ export default function Home() {
           className="mt-8 max-w-xl text-lg text-[var(--dream-muted)] md:text-xl"
         >
           Create a personalized visualization audio guide for your specific goal.
-          <br />
-          Because your mind isn&rsquo;t generic — and your inner voice shouldn&rsquo;t be either.
         </motion.p>
+
+        <motion.blockquote
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
+          className="mt-6 max-w-xl"
+        >
+          <p className="font-serif text-xl italic text-[var(--dream-fg)] md:text-2xl">
+            &ldquo;When you visualize, then you materialize.&rdquo;
+          </p>
+          <footer className="mt-2 text-sm text-[var(--dream-muted)]">— Denis Waitley</footer>
+        </motion.blockquote>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -96,7 +106,7 @@ export default function Home() {
           transition={{ duration: 0.9, delay: 0.6 }}
           className="mt-14 max-w-md text-center text-sm text-[var(--dream-muted)]"
         >
-          Your personalized visualization guide, sent straight to your inbox.
+          Download &amp; listen to your personal visualisation guide.
         </motion.p>
       </section>
 
@@ -109,17 +119,8 @@ export default function Home() {
           transition={{ duration: 1, ease: 'easeOut' }}
           className="max-w-xl text-3xl font-serif italic text-balance md:text-5xl"
         >
-          Vunle isn&rsquo;t live yet — but the waitlist is.
+          Be the first to visualise your future — join the waitlist now
         </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-          className="mt-6 max-w-md text-[var(--dream-muted)]"
-        >
-          Be first to create a visualization built entirely around you.
-        </motion.p>
       </section>
 
       <WaitlistBar />

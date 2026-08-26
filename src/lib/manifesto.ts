@@ -20,7 +20,7 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'athletes',
     lines: [
-      "This is why the world's top athletes",
+      "This is why the world's top athletes and successful people",
       'use guided visualizations every single day.',
       'They rehearse the future in their mind until it feels familiar —',
       'and the body follows.',

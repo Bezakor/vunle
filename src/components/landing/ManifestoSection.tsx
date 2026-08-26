@@ -10,7 +10,7 @@ const sizeClasses: Record<NonNullable<ManifestoBeat['size']>, string> = {
   xl: 'text-4xl md:text-6xl',
 };
 
-export default function ManifestoSection({ beat }: { beat: ManifestoBeat }) {
+export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -25,7 +25,12 @@ export default function ManifestoSection({ beat }: { beat: ManifestoBeat }) {
   const filter = useMotionTemplate`blur(${blur}px)`;
 
   return (
-    <div ref={ref} className="flex min-h-[85vh] items-center justify-center px-6 py-24">
+    <div
+      ref={ref}
+      id={id}
+      data-snap-target=""
+      className="flex min-h-[85vh] items-center justify-center px-6 py-24"
+    >
       <motion.div
         style={{ opacity, y, filter }}
         className="max-w-3xl text-center"

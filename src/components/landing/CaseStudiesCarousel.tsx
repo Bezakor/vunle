@@ -60,11 +60,11 @@ export default function CaseStudiesCarousel() {
   const eyebrowOpacity = useTransform(smooth, [0, 0.06], [0, 1]);
 
   const handleSkip = () => {
-    document.getElementById('closing-cta')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('manifesto-continue')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section ref={ref} className="relative" style={{ height: `${caseStudies.length * 100}vh` }}>
+    <section ref={ref} data-snap-exclude="" className="relative" style={{ height: `${caseStudies.length * 100}vh` }}>
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24">
         <motion.p
           style={{ opacity: eyebrowOpacity }}

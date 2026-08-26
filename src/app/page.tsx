@@ -1,19 +1,30 @@
 'use client';
 
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { manifesto, howItWorks } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
 import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
+import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
+import ScrollSnapController from '@/components/landing/ScrollSnapController';
 import WaitlistBar from '@/components/landing/WaitlistBar';
 import DreamField from '@/components/landing/DreamField';
 
+const splitIndex = manifesto.findIndex((beat) => beat.id === 'athletes') + 1;
+const manifestoBeforeCaseStudies = manifesto.slice(0, splitIndex);
+const manifestoAfterCaseStudies = manifesto.slice(splitIndex);
+
 export default function Home() {
+  const manifestoJourneyRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="dream-page relative min-h-screen">
       <DreamField />
+      <ScrollSnapController />
+      <ScrollProgressBar targetRef={manifestoJourneyRef} />
 
       {/* Hero */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <section data-snap-target="" className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,22 +52,10 @@ export default function Home() {
           Create a personalized visualization audio guide for your specific goal.
         </motion.p>
 
-        <motion.blockquote
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
-          className="mt-6 max-w-xl"
-        >
-          <p className="font-serif text-xl italic text-[var(--dream-fg)] md:text-2xl">
-            &ldquo;When you visualize, then you materialize.&rdquo;
-          </p>
-          <footer className="mt-2 text-sm text-[var(--dream-muted)]">— Denis Waitley</footer>
-        </motion.blockquote>
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
+          transition={{ duration: 1, delay: 1.1 }}
           className="animate-bounce-gentle mt-16 flex flex-col items-center gap-2 text-[var(--dream-muted)]"
         >
           <span className="text-xs uppercase tracking-[0.25em]">Read our manifesto</span>
@@ -64,15 +63,25 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Manifesto — scroll story */}
-      <section className="relative">
-        {manifesto.map((beat) => (
-          <ManifestoSection key={beat.id} beat={beat} />
-        ))}
-      </section>
+      {/* Manifesto — scroll story, with the case studies woven in after the athletes beat */}
+      <div ref={manifestoJourneyRef} className="relative">
+        <section className="relative">
+          {manifestoBeforeCaseStudies.map((beat) => (
+            <ManifestoSection key={beat.id} beat={beat} />
+          ))}
+        </section>
+
+        <CaseStudiesCarousel />
+
+        <section className="relative">
+          {manifestoAfterCaseStudies.map((beat, i) => (
+            <ManifestoSection key={beat.id} beat={beat} id={i === 0 ? 'manifesto-continue' : undefined} />
+          ))}
+        </section>
+      </div>
 
       {/* How it works */}
-      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
+      <section data-snap-target="" className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -111,10 +120,8 @@ export default function Home() {
         </motion.p>
       </section>
 
-      <CaseStudiesCarousel />
-
       {/* Closing CTA */}
-      <section id="closing-cta" className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
+      <section id="closing-cta" data-snap-target="" className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

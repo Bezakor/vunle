@@ -11,9 +11,15 @@ const AVATAR_GRADIENTS = [
 ];
 
 const N = caseStudies.length;
-const COOLDOWN_MS = 550;
 const ACTIVE_THRESHOLD = 0.6;
 const SWIPE_THRESHOLD = 40;
+// A single trackpad flick fires a long tail of wheel events as it decelerates.
+// Treat any run of events less than this far apart as one gesture — only its
+// first event may trigger a step — so one flick never advances multiple cards.
+const GESTURE_GAP_MS = 140;
+// Floor between two actual steps (new gestures included), long enough for the
+// card's own crossfade to finish before another one can start.
+const MIN_STEP_INTERVAL_MS = 420;
 
 function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -34,7 +40,9 @@ export default function CaseStudiesCarousel() {
   const sectionRef = useRef<HTMLElement>(null);
   const isActiveRef = useRef(false);
   const indexRef = useRef(0);
-  const cooldownRef = useRef(false);
+  const lastStepAtRef = useRef(0);
+  const lastWheelAtRef = useRef(0);
+  const gestureConsumedRef = useRef(false);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -45,6 +53,28 @@ export default function CaseStudiesCarousel() {
     const clamped = Math.max(0, Math.min(N - 1, next));
     setState((prev) => (clamped === prev.index ? prev : { index: clamped, direction: clamped > prev.index ? 1 : -1 }));
   }, []);
+
+  // Shared throttle so wheel, swipe, arrow clicks, and dot clicks can never
+  // overlap the card's own crossfade with a second, half-finished one.
+  const attemptStep = useCallback(
+    (delta: number) => {
+      const now = performance.now();
+      if (now - lastStepAtRef.current < MIN_STEP_INTERVAL_MS) return;
+      lastStepAtRef.current = now;
+      goTo(indexRef.current + delta);
+    },
+    [goTo]
+  );
+
+  const goToDot = useCallback(
+    (i: number) => {
+      const now = performance.now();
+      if (now - lastStepAtRef.current < MIN_STEP_INTERVAL_MS) return;
+      lastStepAtRef.current = now;
+      goTo(i);
+    },
+    [goTo]
+  );
 
   // Only capture wheel/swipe input while this section fills most of the viewport.
   useEffect(() => {
@@ -58,25 +88,26 @@ export default function CaseStudiesCarousel() {
   }, []);
 
   useEffect(() => {
-    function step(delta: number) {
-      if (cooldownRef.current) return;
-      cooldownRef.current = true;
-      goTo(indexRef.current + delta);
-      window.setTimeout(() => {
-        cooldownRef.current = false;
-      }, COOLDOWN_MS);
-    }
-
     function onWheel(e: WheelEvent) {
       if (!isActiveRef.current) return;
       const i = indexRef.current;
       const forward = e.deltaY > 0;
       // Only capture the scroll while there's a card left to move to in that
       // direction — otherwise let it fall through to normal page scroll.
-      if ((forward && i < N - 1) || (!forward && i > 0)) {
-        e.preventDefault();
-        step(forward ? 1 : -1);
+      if (!((forward && i < N - 1) || (!forward && i > 0))) return;
+      e.preventDefault();
+
+      const now = performance.now();
+      // A gap longer than GESTURE_GAP_MS means this event starts a new
+      // physical gesture, so it's allowed to trigger a step again.
+      if (now - lastWheelAtRef.current > GESTURE_GAP_MS) {
+        gestureConsumedRef.current = false;
       }
+      lastWheelAtRef.current = now;
+
+      if (gestureConsumedRef.current) return;
+      gestureConsumedRef.current = true;
+      attemptStep(forward ? 1 : -1);
     }
 
     let touchStartX = 0;
@@ -93,7 +124,7 @@ export default function CaseStudiesCarousel() {
       const dx = e.changedTouches[0].clientX - touchStartX;
       const dy = e.changedTouches[0].clientY - touchStartY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
-        step(dx < 0 ? 1 : -1);
+        attemptStep(dx < 0 ? 1 : -1);
       }
     }
 
@@ -105,7 +136,7 @@ export default function CaseStudiesCarousel() {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, [goTo]);
+  }, [attemptStep]);
 
   const handleSkip = () => {
     document.getElementById('manifesto-continue')?.scrollIntoView({ behavior: 'smooth' });
@@ -117,7 +148,7 @@ export default function CaseStudiesCarousel() {
   return (
     <section
       ref={sectionRef}
-      data-snap-exclude=""
+      data-snap=""
       className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 py-16"
     >
       <motion.p
@@ -133,7 +164,7 @@ export default function CaseStudiesCarousel() {
       <div className="relative w-full max-w-xl">
         <button
           type="button"
-          onClick={() => goTo(state.index - 1)}
+          onClick={() => attemptStep(-1)}
           disabled={state.index === 0}
           aria-label="Previous case study"
           className="waitlist-glass absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-[var(--dream-fg)] transition-opacity disabled:pointer-events-none disabled:opacity-0 md:-left-4"
@@ -172,7 +203,7 @@ export default function CaseStudiesCarousel() {
 
         <button
           type="button"
-          onClick={() => goTo(state.index + 1)}
+          onClick={() => attemptStep(1)}
           disabled={state.index === N - 1}
           aria-label="Next case study"
           className="waitlist-glass absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-[var(--dream-fg)] transition-opacity disabled:pointer-events-none disabled:opacity-0 md:-right-4"
@@ -186,7 +217,7 @@ export default function CaseStudiesCarousel() {
           <button
             key={s.id}
             type="button"
-            onClick={() => goTo(i)}
+            onClick={() => goToDot(i)}
             aria-label={`Go to ${s.name}`}
             className="h-1.5 rounded-full transition-all"
             style={{

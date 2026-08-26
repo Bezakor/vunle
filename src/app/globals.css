@@ -42,6 +42,21 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+/* Every top-level section/beat is a snap point; `always` stops a fast
+   fling at each one instead of letting it sail past on the way to rest. */
+[data-snap] {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
 }
 
 ::-webkit-scrollbar {

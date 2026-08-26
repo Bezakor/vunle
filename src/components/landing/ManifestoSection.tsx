@@ -28,7 +28,7 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
     <div
       ref={ref}
       id={id}
-      data-snap-target=""
+      data-snap=""
       className="flex min-h-[85vh] items-center justify-center px-6 py-24"
     >
       <motion.div
@@ -40,7 +40,9 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
             key={i}
             className={`${sizeClasses[beat.size ?? 'md']} ${
               beat.serif ? 'font-serif italic' : 'font-sans'
-            } text-balance leading-snug text-[var(--foreground)]`}
+            } text-balance leading-snug text-[var(--foreground)] ${
+              i === beat.lines.length - 1 && beat.lines.length > 1 ? 'mt-6 md:mt-10' : ''
+            }`}
           >
             {line}
           </p>

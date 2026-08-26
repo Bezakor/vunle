@@ -6,7 +6,6 @@ import { manifesto, howItWorks } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
 import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
 import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
-import ScrollSnapController from '@/components/landing/ScrollSnapController';
 import WaitlistBar from '@/components/landing/WaitlistBar';
 import DreamField from '@/components/landing/DreamField';
 
@@ -20,11 +19,10 @@ export default function Home() {
   return (
     <div className="dream-page relative min-h-screen">
       <DreamField />
-      <ScrollSnapController />
       <ScrollProgressBar targetRef={manifestoJourneyRef} />
 
       {/* Hero */}
-      <section data-snap-target="" className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <section data-snap="" className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,7 +79,7 @@ export default function Home() {
       </div>
 
       {/* How it works */}
-      <section data-snap-target="" className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
+      <section data-snap="" className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
         <div className="grid w-full max-w-4xl gap-8 md:grid-cols-3">
           {howItWorks.map((item, i) => (
             <motion.div
@@ -111,7 +109,7 @@ export default function Home() {
       </section>
 
       {/* Closing CTA */}
-      <section id="closing-cta" data-snap-target="" className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
+      <section id="closing-cta" data-snap="" className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

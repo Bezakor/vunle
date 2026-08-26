@@ -45,7 +45,11 @@ export default function ScrollSnapController() {
       function step(now: number) {
         const elapsed = now - startTime;
         const t = Math.min(1, elapsed / EASE_DURATION);
-        window.scrollTo(0, start + distance * easeOutCubic(t));
+        // behavior: 'auto' is required here — html has scroll-behavior: smooth,
+        // and the two-argument scrollTo(x, y) form inherits that, which would
+        // stack the browser's own smoothing on top of this rAF loop's easing
+        // every frame and produce exactly the jitter this controller exists to avoid.
+        window.scrollTo({ top: start + distance * easeOutCubic(t), left: 0, behavior: 'auto' });
         if (t < 1) {
           rafId = requestAnimationFrame(step);
         } else {

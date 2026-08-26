@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { manifesto, howItWorks } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
+import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
 import WaitlistBar from '@/components/landing/WaitlistBar';
 import DreamField from '@/components/landing/DreamField';
 
@@ -110,8 +111,10 @@ export default function Home() {
         </motion.p>
       </section>
 
+      <CaseStudiesCarousel />
+
       {/* Closing CTA */}
-      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
+      <section id="closing-cta" className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-40 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

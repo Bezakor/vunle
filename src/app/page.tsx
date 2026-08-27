@@ -64,8 +64,12 @@ export default function Home() {
       {/* Manifesto — scroll story, with the case studies woven in after the athletes beat */}
       <div ref={manifestoJourneyRef} className="relative">
         <section className="relative">
-          {manifestoBeforeCaseStudies.map((beat) => (
-            <ManifestoSection key={beat.id} beat={beat} />
+          {manifestoBeforeCaseStudies.map((beat, i) => (
+            <ManifestoSection
+              key={beat.id}
+              beat={beat}
+              id={i === manifestoBeforeCaseStudies.length - 1 ? 'manifesto-before-cases' : undefined}
+            />
           ))}
         </section>
 

@@ -138,8 +138,22 @@ export default function CaseStudiesCarousel() {
     };
   }, [attemptStep]);
 
-  const handleSkip = () => {
-    document.getElementById('manifesto-continue')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToSection = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const handleSkip = () => scrollToSection('manifesto-continue');
+
+  // The arrows stay available on the first and last cards: instead of dead-ending,
+  // they carry on out of the carousel into the adjacent manifesto section.
+  const handlePrev = () => {
+    if (state.index === 0) scrollToSection('manifesto-before-cases');
+    else attemptStep(-1);
+  };
+
+  const handleNext = () => {
+    if (state.index === N - 1) scrollToSection('manifesto-continue');
+    else attemptStep(1);
   };
 
   const study = caseStudies[state.index];
@@ -164,10 +178,9 @@ export default function CaseStudiesCarousel() {
       <div className="relative w-full max-w-xl">
         <button
           type="button"
-          onClick={() => attemptStep(-1)}
-          disabled={state.index === 0}
-          aria-label="Previous case study"
-          className="waitlist-glass absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-[var(--dream-fg)] transition-opacity disabled:pointer-events-none disabled:opacity-0 md:-left-4"
+          onClick={handlePrev}
+          aria-label={state.index === 0 ? 'Back to the previous section' : 'Previous case study'}
+          className="carousel-arrow absolute left-1 top-1/2 z-10 -translate-y-1/2 md:-left-5"
         >
           <ArrowIcon direction="left" />
         </button>
@@ -193,20 +206,19 @@ export default function CaseStudiesCarousel() {
                 {study.isQuote ? `“${study.headline}”` : study.headline}
               </p>
 
-              <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">{study.description}</p>
-
               <p className="mt-6 text-sm font-medium">{study.name}</p>
               <p className="text-xs text-[var(--dream-muted)]">{study.title}</p>
+
+              <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">{study.description}</p>
             </motion.div>
           </AnimatePresence>
         </div>
 
         <button
           type="button"
-          onClick={() => attemptStep(1)}
-          disabled={state.index === N - 1}
-          aria-label="Next case study"
-          className="waitlist-glass absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-[var(--dream-fg)] transition-opacity disabled:pointer-events-none disabled:opacity-0 md:-right-4"
+          onClick={handleNext}
+          aria-label={state.index === N - 1 ? 'Continue to the next section' : 'Next case study'}
+          className="carousel-arrow absolute right-1 top-1/2 z-10 -translate-y-1/2 md:-right-5"
         >
           <ArrowIcon direction="right" />
         </button>

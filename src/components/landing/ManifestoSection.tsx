@@ -40,8 +40,10 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
             key={i}
             className={`${sizeClasses[beat.size ?? 'md']} ${
               beat.serif ? 'font-serif italic' : 'font-sans'
-            } text-balance leading-snug text-[var(--foreground)] ${
-              i === beat.lines.length - 1 && beat.lines.length > 1 ? 'mt-6 md:mt-10' : ''
+            } text-balance leading-snug ${
+              i === beat.lines.length - 1 && beat.lines.length > 1
+                ? 'mt-6 text-[var(--dream-primary)] md:mt-10'
+                : 'text-[var(--foreground)]'
             }`}
           >
             {line}

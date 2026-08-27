@@ -16,7 +16,20 @@ const SWIPE_THRESHOLD = 40;
 // A single trackpad flick fires a long tail of wheel events as it decelerates.
 // Treat any run of events less than this far apart as one gesture — only its
 // first event may trigger a step — so one flick never advances multiple cards.
-const GESTURE_GAP_MS = 140;
+// Momentum events arrive every 8-16ms and stay well under this even when the
+// tail thins out; a deliberate second flick follows a much longer pause, so
+// this sits in the gap between the two rather than close to momentum spacing.
+const GESTURE_GAP_MS = 300;
+// While the page itself is still moving we're mid-arrival, so wheel input
+// belongs to the scroll that is bringing the section in, not to a decision to
+// change card. This is timing-independent: it doesn't matter how fast or slow
+// the momentum events arrive, only that the page has come to rest.
+const PAGE_SETTLE_MS = 300;
+// Only capture the wheel once the section is actually parked at the top of the
+// viewport. While it's still sliding into place the scroll belongs to the page,
+// so letting it through is what allows the section to finish arriving at all —
+// capturing early strands the page mid-section with no scroll left to settle it.
+const ALIGN_TOLERANCE_PX = 40;
 // Floor between two actual steps (new gestures included), long enough for the
 // card's own crossfade to finish before another one can start.
 const MIN_STEP_INTERVAL_MS = 420;
@@ -52,6 +65,8 @@ export default function CaseStudiesCarousel() {
   const lastWheelAtRef = useRef(0);
   const gestureConsumedRef = useRef(false);
   const arrivedAtRef = useRef(0);
+  const lastPageScrollAtRef = useRef(0);
+  const alignedRef = useRef(false);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -105,7 +120,21 @@ export default function CaseStudiesCarousel() {
 
   useEffect(() => {
     function onWheel(e: WheelEvent) {
-      if (!isActiveRef.current) return;
+      const section = sectionRef.current;
+      if (!isActiveRef.current || !section) return;
+
+      // Not parked yet — let the scroll through so the page can finish arriving.
+      if (Math.abs(section.getBoundingClientRect().top) > ALIGN_TOLERANCE_PX) {
+        alignedRef.current = false;
+        return;
+      }
+      // First event since parking: this gesture belongs to the arrival.
+      if (!alignedRef.current) {
+        alignedRef.current = true;
+        arrivedAtRef.current = performance.now();
+        gestureConsumedRef.current = true;
+      }
+
       const i = indexRef.current;
       const forward = e.deltaY > 0;
       // Only capture the scroll while there's a card left to move to in that
@@ -115,10 +144,14 @@ export default function CaseStudiesCarousel() {
 
       const now = performance.now();
 
-      // Still settling after arriving: hold the card, swallow the leftovers of
-      // the arriving flick, and keep the gesture marked spent so it can't step
-      // the moment the window closes.
-      if (now - arrivedAtRef.current < ARRIVAL_GRACE_MS) {
+      // Still settling after arriving — either inside the grace window or with
+      // the page still moving. Hold the card, swallow the leftovers of the
+      // arriving flick, and keep the gesture marked spent so it can't step the
+      // moment the window closes.
+      if (
+        now - arrivedAtRef.current < ARRIVAL_GRACE_MS ||
+        now - lastPageScrollAtRef.current < PAGE_SETTLE_MS
+      ) {
         lastWheelAtRef.current = now;
         gestureConsumedRef.current = true;
         return;
@@ -154,13 +187,19 @@ export default function CaseStudiesCarousel() {
       }
     }
 
+    function onPageScroll() {
+      lastPageScrollAtRef.current = performance.now();
+    }
+
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('scroll', onPageScroll, { passive: true });
     return () => {
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('scroll', onPageScroll);
     };
   }, [attemptStep]);
 

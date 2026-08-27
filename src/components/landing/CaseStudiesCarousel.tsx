@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useCallback, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { caseStudies } from '@/lib/caseStudies';
 
 const AVATAR_GRADIENTS = [
@@ -11,33 +11,7 @@ const AVATAR_GRADIENTS = [
 ];
 
 const N = caseStudies.length;
-const ACTIVE_THRESHOLD = 0.6;
 const SWIPE_THRESHOLD = 40;
-// A single trackpad flick fires a long tail of wheel events as it decelerates.
-// Treat any run of events less than this far apart as one gesture — only its
-// first event may trigger a step — so one flick never advances multiple cards.
-// Momentum events arrive every 8-16ms and stay well under this even when the
-// tail thins out; a deliberate second flick follows a much longer pause, so
-// this sits in the gap between the two rather than close to momentum spacing.
-const GESTURE_GAP_MS = 300;
-// While the page itself is still moving we're mid-arrival, so wheel input
-// belongs to the scroll that is bringing the section in, not to a decision to
-// change card. This is timing-independent: it doesn't matter how fast or slow
-// the momentum events arrive, only that the page has come to rest.
-const PAGE_SETTLE_MS = 300;
-// Only capture the wheel once the section is actually parked at the top of the
-// viewport. While it's still sliding into place the scroll belongs to the page,
-// so letting it through is what allows the section to finish arriving at all —
-// capturing early strands the page mid-section with no scroll left to settle it.
-const ALIGN_TOLERANCE_PX = 40;
-// Floor between two actual steps (new gestures included), long enough for the
-// card's own crossfade to finish before another one can start.
-const MIN_STEP_INTERVAL_MS = 420;
-// The flick that scrolls the section into view keeps firing wheel events after
-// it arrives (momentum, plus the snap animation). Without this window those
-// leftovers get read as fresh gestures and march through several cards on their
-// own, so ignore stepping until the arrival has settled.
-const ARRIVAL_GRACE_MS = 700;
 
 // Swap in whichever YouTube video should sit behind the case studies.
 const BACKGROUND_VIDEO_ID = 'ZToicYcHIOU';
@@ -56,292 +30,190 @@ function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   );
 }
 
+/**
+ * The section is N viewport-heights tall with a sticky child pinned inside it,
+ * and the visible card is read straight off how far the page has scrolled
+ * through it. Nothing is intercepted: no wheel capture, no preventDefault, no
+ * cooldowns and no timing heuristics deciding whether input counts as a new
+ * gesture. Scrolling stays entirely native, so it behaves the same on a mouse
+ * wheel, a trackpad, a touchscreen, the keyboard or a scrollbar drag, and the
+ * page simply carries on into the next section once the last card is past.
+ */
 export default function CaseStudiesCarousel() {
+  const wrapperRef = useRef<HTMLElement>(null);
   const [state, setState] = useState({ index: 0, direction: 0 });
-  const sectionRef = useRef<HTMLElement>(null);
-  const isActiveRef = useRef(false);
-  const indexRef = useRef(0);
-  const lastStepAtRef = useRef(0);
-  const lastWheelAtRef = useRef(0);
-  const gestureConsumedRef = useRef(false);
-  const arrivedAtRef = useRef(0);
-  const lastPageScrollAtRef = useRef(0);
-  const alignedRef = useRef(false);
   const reduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    indexRef.current = state.index;
-  }, [state.index]);
+  const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ['start start', 'end end'] });
 
-  const goTo = useCallback((next: number) => {
-    const clamped = Math.max(0, Math.min(N - 1, next));
-    setState((prev) => (clamped === prev.index ? prev : { index: clamped, direction: clamped > prev.index ? 1 : -1 }));
+  useMotionValueEvent(scrollYProgress, 'change', (p) => {
+    const next = Math.max(0, Math.min(N - 1, Math.round(p * (N - 1))));
+    setState((prev) => (prev.index === next ? prev : { index: next, direction: next > prev.index ? 1 : -1 }));
+  });
+
+  // Each card owns one viewport-height of the section's scroll range.
+  const scrollToCard = useCallback((i: number) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const top = wrapper.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
   }, []);
-
-  // Shared throttle so wheel, swipe, arrow clicks, and dot clicks can never
-  // overlap the card's own crossfade with a second, half-finished one.
-  const attemptStep = useCallback(
-    (delta: number) => {
-      const now = performance.now();
-      if (now - lastStepAtRef.current < MIN_STEP_INTERVAL_MS) return;
-      lastStepAtRef.current = now;
-      goTo(indexRef.current + delta);
-    },
-    [goTo]
-  );
-
-  const goToDot = useCallback(
-    (i: number) => {
-      const now = performance.now();
-      if (now - lastStepAtRef.current < MIN_STEP_INTERVAL_MS) return;
-      lastStepAtRef.current = now;
-      goTo(i);
-    },
-    [goTo]
-  );
-
-  // Only capture wheel/swipe input while this section fills most of the viewport.
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    const io = new IntersectionObserver(([entry]) => {
-      const nowActive = entry.intersectionRatio > ACTIVE_THRESHOLD;
-      if (nowActive && !isActiveRef.current) {
-        // Just arrived: start the grace window and mark the gesture that
-        // brought us here as already spent, so its tail can't step a card.
-        arrivedAtRef.current = performance.now();
-        gestureConsumedRef.current = true;
-      }
-      isActiveRef.current = nowActive;
-    }, { threshold: [0, ACTIVE_THRESHOLD, 1] });
-    io.observe(section);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    function onWheel(e: WheelEvent) {
-      const section = sectionRef.current;
-      if (!isActiveRef.current || !section) return;
-
-      // Not parked yet — let the scroll through so the page can finish arriving.
-      if (Math.abs(section.getBoundingClientRect().top) > ALIGN_TOLERANCE_PX) {
-        alignedRef.current = false;
-        return;
-      }
-      // First event since parking: this gesture belongs to the arrival.
-      if (!alignedRef.current) {
-        alignedRef.current = true;
-        arrivedAtRef.current = performance.now();
-        gestureConsumedRef.current = true;
-      }
-
-      const i = indexRef.current;
-      const forward = e.deltaY > 0;
-      // Only capture the scroll while there's a card left to move to in that
-      // direction — otherwise let it fall through to normal page scroll.
-      if (!((forward && i < N - 1) || (!forward && i > 0))) return;
-      e.preventDefault();
-
-      const now = performance.now();
-
-      // Still settling after arriving — either inside the grace window or with
-      // the page still moving. Hold the card, swallow the leftovers of the
-      // arriving flick, and keep the gesture marked spent so it can't step the
-      // moment the window closes.
-      if (
-        now - arrivedAtRef.current < ARRIVAL_GRACE_MS ||
-        now - lastPageScrollAtRef.current < PAGE_SETTLE_MS
-      ) {
-        lastWheelAtRef.current = now;
-        gestureConsumedRef.current = true;
-        return;
-      }
-
-      // A gap longer than GESTURE_GAP_MS means this event starts a new
-      // physical gesture, so it's allowed to trigger a step again.
-      if (now - lastWheelAtRef.current > GESTURE_GAP_MS) {
-        gestureConsumedRef.current = false;
-      }
-      lastWheelAtRef.current = now;
-
-      if (gestureConsumedRef.current) return;
-      gestureConsumedRef.current = true;
-      attemptStep(forward ? 1 : -1);
-    }
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    function onTouchStart(e: TouchEvent) {
-      if (!isActiveRef.current) return;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    }
-
-    function onTouchEnd(e: TouchEvent) {
-      if (!isActiveRef.current) return;
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      const dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
-        attemptStep(dx < 0 ? 1 : -1);
-      }
-    }
-
-    function onPageScroll() {
-      lastPageScrollAtRef.current = performance.now();
-    }
-
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('scroll', onPageScroll, { passive: true });
-    return () => {
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('scroll', onPageScroll);
-    };
-  }, [attemptStep]);
 
   const scrollToSection = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const handleSkip = () => scrollToSection('manifesto-continue');
-
   // The arrows stay available on the first and last cards: instead of dead-ending,
   // they carry on out of the carousel into the adjacent manifesto section.
   const handlePrev = () => {
     if (state.index === 0) scrollToSection('manifesto-before-cases');
-    else attemptStep(-1);
+    else scrollToCard(state.index - 1);
   };
 
   const handleNext = () => {
     if (state.index === N - 1) scrollToSection('manifesto-continue');
-    else attemptStep(1);
+    else scrollToCard(state.index + 1);
+  };
+
+  // Horizontal swipes step a card; vertical ones are left to the browser.
+  const touchStart = useRef({ x: 0, y: 0 });
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
+      const next = state.index + (dx < 0 ? 1 : -1);
+      if (next >= 0 && next < N) scrollToCard(next);
+    }
   };
 
   const study = caseStudies[state.index];
   const offset = reduceMotion ? 0 : 36;
 
   return (
-    <section
-      ref={sectionRef}
-      data-snap=""
-      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-32"
-    >
-      {/* Full-bleed video backdrop. The gradient underneath is what shows if the
-          embed is blocked or slow, so the section still reads as designed. */}
-      <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-        <div
-          className="absolute inset-0"
-          style={{ background: 'radial-gradient(circle at 50% 40%, #2a2145, #120f1e 70%)' }}
-        />
-        {!reduceMotion && (
-          <iframe
-            title=""
-            tabIndex={-1}
-            aria-hidden
-            allow="autoplay; encrypted-media"
-            referrerPolicy="strict-origin-when-cross-origin"
-            src={`https://www.youtube-nocookie.com/embed/${BACKGROUND_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${BACKGROUND_VIDEO_ID}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1&fs=0&iv_load_policy=3`}
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
-            style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
-          />
-        )}
-        {/* Overlay: darkens and cools the footage so the cards stay readable. */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(to bottom, rgba(18,15,30,0.92), rgba(18,15,30,0.72) 35%, rgba(18,15,30,0.72) 65%, rgba(18,15,30,0.95))',
-          }}
-        />
-        <div className="absolute inset-0 backdrop-blur-[2px]" />
-      </div>
+    <section ref={wrapperRef} className="relative" style={{ height: `${N * 100}vh` }}>
+      {/* One snap marker per card, so the page eases onto a card rather than
+          resting between two of them. */}
+      {caseStudies.map((s, i) => (
+        <div key={s.id} data-snap="" className="absolute h-px w-px" style={{ top: `${i * 100}vh` }} aria-hidden />
+      ))}
 
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="mb-8 text-xs uppercase tracking-[0.3em] text-[var(--dream-muted)]"
+      <div
+        className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-32"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
-        Case studies
-      </motion.p>
+        {/* Full-bleed video backdrop. The gradient underneath is what shows if the
+            embed is blocked or slow, so the section still reads as designed. */}
+        <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+          <div
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(circle at 50% 40%, #2a2145, #120f1e 70%)' }}
+          />
+          {!reduceMotion && (
+            <iframe
+              title=""
+              tabIndex={-1}
+              aria-hidden
+              allow="autoplay; encrypted-media"
+              referrerPolicy="strict-origin-when-cross-origin"
+              src={`https://www.youtube-nocookie.com/embed/${BACKGROUND_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${BACKGROUND_VIDEO_ID}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1&fs=0&iv_load_policy=3`}
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
+              style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
+            />
+          )}
+          {/* Overlay: darkens and cools the footage so the cards stay readable. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(18,15,30,0.92), rgba(18,15,30,0.72) 35%, rgba(18,15,30,0.72) 65%, rgba(18,15,30,0.95))',
+            }}
+          />
+          <div className="absolute inset-0 backdrop-blur-[2px]" />
+        </div>
 
-      <div className="relative w-full max-w-xl">
-        <button
-          type="button"
-          onClick={handlePrev}
-          aria-label={state.index === 0 ? 'Back to the previous section' : 'Previous case study'}
-          className="carousel-arrow absolute left-1 top-1/2 z-10 -translate-y-1/2 md:-left-5"
-        >
-          <ArrowIcon direction="left" />
-        </button>
+        <p className="mb-8 text-xs uppercase tracking-[0.3em] text-[var(--dream-muted)]">Case studies</p>
 
-        <div className="relative h-[32rem] overflow-hidden">
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={study.id}
-              initial={{ opacity: 0, x: offset * state.direction, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, x: -offset * state.direction, filter: 'blur(8px)' }}
-              transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="waitlist-glass absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-8 text-center md:p-10"
-            >
-              <div
-                className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-medium text-white"
-                style={{ background: AVATAR_GRADIENTS[state.index % AVATAR_GRADIENTS.length] }}
+        <div className="relative w-full max-w-xl">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label={state.index === 0 ? 'Back to the previous section' : 'Previous case study'}
+            className="carousel-arrow absolute left-1 top-1/2 z-10 -translate-y-1/2 md:-left-5"
+          >
+            <ArrowIcon direction="left" />
+          </button>
+
+          <div className="relative h-[32rem] overflow-hidden">
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={study.id}
+                initial={{ opacity: 0, x: offset * state.direction, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, x: -offset * state.direction, filter: 'blur(8px)' }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="waitlist-glass absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-8 text-center md:p-10"
               >
-                {study.initials}
-              </div>
+                <div
+                  className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-medium text-white"
+                  style={{ background: AVATAR_GRADIENTS[state.index % AVATAR_GRADIENTS.length] }}
+                >
+                  {study.initials}
+                </div>
 
-              <p className="mt-6 line-clamp-5 font-serif text-2xl italic leading-snug text-balance">
-                {study.isQuote ? `“${study.headline}”` : study.headline}
-              </p>
+                <p className="mt-6 line-clamp-5 font-serif text-2xl italic leading-snug text-balance">
+                  {study.isQuote ? `“${study.headline}”` : study.headline}
+                </p>
 
-              <p className="mt-6 text-sm font-medium">{study.name}</p>
-              <p className="text-xs text-[var(--dream-muted)]">{study.title}</p>
+                <p className="mt-6 text-sm font-medium">{study.name}</p>
+                <p className="text-xs text-[var(--dream-muted)]">{study.title}</p>
 
-              <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">{study.description}</p>
-            </motion.div>
-          </AnimatePresence>
+                <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">
+                  {study.description}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label={state.index === N - 1 ? 'Continue to the next section' : 'Next case study'}
+            className="carousel-arrow absolute right-1 top-1/2 z-10 -translate-y-1/2 md:-right-5"
+          >
+            <ArrowIcon direction="right" />
+          </button>
+        </div>
+
+        <div className="mt-6 flex items-center gap-2">
+          {caseStudies.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => scrollToCard(i)}
+              aria-label={`Go to ${s.name}`}
+              className="h-1.5 rounded-full transition-all"
+              style={{
+                width: i === state.index ? '20px' : '6px',
+                background: i === state.index ? 'var(--dream-primary)' : 'rgba(168, 156, 196, 0.35)',
+              }}
+            />
+          ))}
         </div>
 
         <button
           type="button"
-          onClick={handleNext}
-          aria-label={state.index === N - 1 ? 'Continue to the next section' : 'Next case study'}
-          className="carousel-arrow absolute right-1 top-1/2 z-10 -translate-y-1/2 md:-right-5"
+          onClick={() => scrollToSection('manifesto-continue')}
+          className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--dream-muted)] opacity-40 transition-opacity hover:opacity-80"
         >
-          <ArrowIcon direction="right" />
+          Skip the case studies
         </button>
       </div>
-
-      <div className="mt-6 flex items-center gap-2">
-        {caseStudies.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => goToDot(i)}
-            aria-label={`Go to ${s.name}`}
-            className="h-1.5 rounded-full transition-all"
-            style={{
-              width: i === state.index ? '20px' : '6px',
-              background: i === state.index ? 'var(--dream-primary)' : 'rgba(168, 156, 196, 0.35)',
-            }}
-          />
-        ))}
-      </div>
-
-      <button
-        type="button"
-        onClick={handleSkip}
-        className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--dream-muted)] opacity-40 transition-opacity hover:opacity-80"
-      >
-        Skip the case studies
-      </button>
     </section>
   );
 }

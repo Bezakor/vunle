@@ -13,6 +13,16 @@ const DURATION_MS = 480;
 const MIN_DISTANCE_PX = 6;
 // Don't yank across a long distance — that's a deliberate jump, not a near-miss.
 const MAX_DISTANCE_RATIO = 0.6;
+// How far you must travel from the section you were resting on before the scroll
+// counts as wanting the next one. Without this, always easing back to whichever
+// point is nearest means a series of small scrolls is returned to the same
+// section every time and can never advance — the page feels stuck.
+const COMMIT_RATIO = 0.12;
+// Wheel events within one gesture can be spaced further apart than IDLE_MS, so
+// a scroll going quiet for a moment doesn't mean the gesture is over. Wait for
+// input itself to stop as well, or the ease fires mid-gesture and drags the page
+// back under the user's fingers.
+const INPUT_QUIET_MS = 220;
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
@@ -25,6 +35,10 @@ export default function ScrollSnapController() {
     let idleTimer: number | undefined;
     let rafId: number | undefined;
     let animating = false;
+    // The section we last came to rest on, so we can tell "nudged a little away
+    // from here" apart from "travelled far enough to want the next one".
+    let restY = window.scrollY;
+    let lastInputAt = 0;
 
     function cancelAnimation() {
       if (rafId !== undefined) cancelAnimationFrame(rafId);
@@ -44,6 +58,7 @@ export default function ScrollSnapController() {
         if (t < 1) {
           rafId = requestAnimationFrame(step);
         } else {
+          restY = target;
           cancelAnimation();
         }
       }
@@ -53,15 +68,35 @@ export default function ScrollSnapController() {
     function snapToNearest() {
       if (animating) return;
 
+      // The gesture itself is still going — wait for it to finish rather than
+      // easing away from where the user is currently scrolling to.
+      const quietFor = performance.now() - lastInputAt;
+      if (quietFor < INPUT_QUIET_MS) {
+        if (idleTimer) window.clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(snapToNearest, INPUT_QUIET_MS - quietFor);
+        return;
+      }
+
       const y = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       // Leave the extremes alone so the page can rest at the very top/bottom.
-      if (y <= 2 || y >= maxScroll - 2) return;
+      // restY still has to be updated on every settle, including the ones we
+      // decline to act on: it means "where the page is currently at rest", and
+      // letting it go stale makes the next scroll measure travel from the wrong
+      // origin and ease the wrong way.
+      if (y <= 2 || y >= maxScroll - 2) {
+        restY = y;
+        return;
+      }
 
-      let nearest = Infinity;
+      const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-snap]'))
+        .map((el) => el.getBoundingClientRect().top + y)
+        .sort((a, b) => a - b);
+      if (targets.length === 0) return;
+
+      let nearest = targets[0];
       let best = Infinity;
-      for (const el of document.querySelectorAll<HTMLElement>('[data-snap]')) {
-        const top = el.getBoundingClientRect().top + y;
+      for (const top of targets) {
         const d = Math.abs(top - y);
         if (d < best) {
           best = d;
@@ -69,9 +104,32 @@ export default function ScrollSnapController() {
         }
       }
 
-      if (!Number.isFinite(nearest)) return;
-      if (best < MIN_DISTANCE_PX) return;
-      if (best > window.innerHeight * MAX_DISTANCE_RATIO) return;
+      // Nearest is the one we started from, yet we've travelled a meaningful
+      // distance: take that as wanting the next section along, not a near-miss
+      // to be undone. Otherwise repeated small scrolls never get anywhere.
+      const travelled = y - restY;
+      if (
+        Math.abs(nearest - restY) < MIN_DISTANCE_PX &&
+        Math.abs(travelled) > window.innerHeight * COMMIT_RATIO
+      ) {
+        const forward = travelled > 0;
+        const next = forward
+          ? targets.find((t) => t > restY + MIN_DISTANCE_PX)
+          : [...targets].reverse().find((t) => t < restY - MIN_DISTANCE_PX);
+        if (next !== undefined) {
+          animateTo(Math.max(0, Math.min(maxScroll, next)));
+          return;
+        }
+      }
+
+      if (best < MIN_DISTANCE_PX) {
+        restY = nearest;
+        return;
+      }
+      if (best > window.innerHeight * MAX_DISTANCE_RATIO) {
+        restY = y;
+        return;
+      }
 
       animateTo(Math.max(0, Math.min(maxScroll, nearest)));
     }
@@ -84,6 +142,7 @@ export default function ScrollSnapController() {
 
     // Fresh input always wins: drop whatever we were doing and hand back control.
     function onUserInput() {
+      lastInputAt = performance.now();
       cancelAnimation();
     }
 

@@ -35,20 +35,24 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
         style={{ opacity, y, filter }}
         className="max-w-3xl text-center"
       >
-        {beat.lines.map((line, i) => (
-          <p
-            key={i}
-            className={`${sizeClasses[beat.size ?? 'md']} ${
-              beat.serif ? 'font-serif italic' : 'font-sans'
-            } text-balance leading-snug ${
-              i === beat.lines.length - 1 && beat.lines.length > 1
-                ? 'mt-6 text-[var(--dream-primary)] md:mt-10'
-                : 'text-[var(--foreground)]'
-            }`}
-          >
-            {line}
-          </p>
-        ))}
+        {beat.lines.map((line, i) => {
+          const isClosing = i === beat.lines.length - 1 && beat.lines.length > 1;
+          const accent = isClosing || beat.accentLines?.includes(i);
+          const spaced = isClosing || beat.gapAfter?.includes(i - 1);
+
+          return (
+            <p
+              key={i}
+              className={`${sizeClasses[beat.size ?? 'md']} ${
+                beat.serif ? 'font-serif italic' : 'font-sans'
+              } text-balance leading-snug ${spaced ? 'mt-6 md:mt-10' : ''} ${
+                accent ? 'text-[var(--dream-primary)]' : 'text-[var(--foreground)]'
+              }`}
+            >
+              {line}
+            </p>
+          );
+        })}
       </motion.div>
     </div>
   );

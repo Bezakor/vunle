@@ -3,6 +3,10 @@ export interface ManifestoBeat {
   lines: string[];
   size?: 'md' | 'lg' | 'xl';
   serif?: boolean;
+  /** Extra line indices to render in the accent colour. The closing line always is. */
+  accentLines?: number[];
+  /** Line indices after which to open an extra paragraph space. */
+  gapAfter?: number[];
 }
 
 export const manifesto: ManifestoBeat[] = [
@@ -60,6 +64,8 @@ export const manifesto: ManifestoBeat[] = [
     ],
     size: 'md',
     serif: true,
+    accentLines: [0, 1],
+    gapAfter: [1],
   },
   {
     id: 'audio-journey',

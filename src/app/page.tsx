@@ -6,6 +6,7 @@ import { manifesto, howItWorks } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
 import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
 import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
+import ScrollSnapController from '@/components/landing/ScrollSnapController';
 import WaitlistBar from '@/components/landing/WaitlistBar';
 import DreamField from '@/components/landing/DreamField';
 
@@ -19,6 +20,7 @@ export default function Home() {
   return (
     <div className="dream-page relative min-h-screen">
       <DreamField />
+      <ScrollSnapController />
       <ScrollProgressBar targetRef={manifestoJourneyRef} />
 
       {/* Hero */}

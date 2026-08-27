@@ -48,7 +48,7 @@ export default function WaitlistBar() {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 md:pb-6">
+    <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-10 md:pb-14">
       <div className="mx-auto max-w-xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

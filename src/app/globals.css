@@ -40,24 +40,13 @@ body {
   color: var(--foreground);
 }
 
-html {
-  scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
-}
-
-/* Every top-level section/beat is a snap point; `always` stops a fast
-   fling at each one instead of letting it sail past on the way to rest. */
-[data-snap] {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-    scroll-snap-type: none;
-  }
-}
+/* No CSS scroll-snap and no `scroll-behavior: smooth` here, both deliberate.
+   `scroll-snap-type: y mandatory` re-snaps each small scroll delta back to the
+   current section, which leaves ordinary mouse-wheel ticks and trackpad
+   scrolling unable to advance at all; and `scroll-behavior: smooth` makes the
+   browser animate every programmatic scroll, fighting our own easing.
+   Native scrolling is left completely free, and SectionSnap eases to the
+   nearest section once the user stops — see ScrollSnapController. */
 
 ::-webkit-scrollbar {
   width: 6px;

@@ -53,8 +53,9 @@ export const manifesto: ManifestoBeat[] = [
     lines: [
       'That’s why Vunle exists.',
       'Vunle creates a guided visualization made only for you.',
-      'Because the most important conversation',
-      'is the one you have with yourself.',
+      'Maybe you want to improve your self belief, become more confident,',
+      'more grateful, more successful, more content, achieve a life long goal,',
+      'get something you want, or become someone you know you can be,',
       'Here’s how it works…',
     ],
     size: 'md',

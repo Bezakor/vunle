@@ -20,6 +20,14 @@ const GESTURE_GAP_MS = 140;
 // Floor between two actual steps (new gestures included), long enough for the
 // card's own crossfade to finish before another one can start.
 const MIN_STEP_INTERVAL_MS = 420;
+// The flick that scrolls the section into view keeps firing wheel events after
+// it arrives (momentum, plus the snap animation). Without this window those
+// leftovers get read as fresh gestures and march through several cards on their
+// own, so ignore stepping until the arrival has settled.
+const ARRIVAL_GRACE_MS = 700;
+
+// Swap in whichever YouTube video should sit behind the case studies.
+const BACKGROUND_VIDEO_ID = 'ZToicYcHIOU';
 
 function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -43,6 +51,7 @@ export default function CaseStudiesCarousel() {
   const lastStepAtRef = useRef(0);
   const lastWheelAtRef = useRef(0);
   const gestureConsumedRef = useRef(false);
+  const arrivedAtRef = useRef(0);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -81,7 +90,14 @@ export default function CaseStudiesCarousel() {
     const section = sectionRef.current;
     if (!section) return;
     const io = new IntersectionObserver(([entry]) => {
-      isActiveRef.current = entry.intersectionRatio > ACTIVE_THRESHOLD;
+      const nowActive = entry.intersectionRatio > ACTIVE_THRESHOLD;
+      if (nowActive && !isActiveRef.current) {
+        // Just arrived: start the grace window and mark the gesture that
+        // brought us here as already spent, so its tail can't step a card.
+        arrivedAtRef.current = performance.now();
+        gestureConsumedRef.current = true;
+      }
+      isActiveRef.current = nowActive;
     }, { threshold: [0, ACTIVE_THRESHOLD, 1] });
     io.observe(section);
     return () => io.disconnect();
@@ -98,6 +114,16 @@ export default function CaseStudiesCarousel() {
       e.preventDefault();
 
       const now = performance.now();
+
+      // Still settling after arriving: hold the card, swallow the leftovers of
+      // the arriving flick, and keep the gesture marked spent so it can't step
+      // the moment the window closes.
+      if (now - arrivedAtRef.current < ARRIVAL_GRACE_MS) {
+        lastWheelAtRef.current = now;
+        gestureConsumedRef.current = true;
+        return;
+      }
+
       // A gap longer than GESTURE_GAP_MS means this event starts a new
       // physical gesture, so it's allowed to trigger a step again.
       if (now - lastWheelAtRef.current > GESTURE_GAP_MS) {
@@ -163,8 +189,38 @@ export default function CaseStudiesCarousel() {
     <section
       ref={sectionRef}
       data-snap=""
-      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 py-16"
+      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-32"
     >
+      {/* Full-bleed video backdrop. The gradient underneath is what shows if the
+          embed is blocked or slow, so the section still reads as designed. */}
+      <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(circle at 50% 40%, #2a2145, #120f1e 70%)' }}
+        />
+        {!reduceMotion && (
+          <iframe
+            title=""
+            tabIndex={-1}
+            aria-hidden
+            allow="autoplay; encrypted-media"
+            referrerPolicy="strict-origin-when-cross-origin"
+            src={`https://www.youtube-nocookie.com/embed/${BACKGROUND_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${BACKGROUND_VIDEO_ID}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1&fs=0&iv_load_policy=3`}
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
+            style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
+          />
+        )}
+        {/* Overlay: darkens and cools the footage so the cards stay readable. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(18,15,30,0.92), rgba(18,15,30,0.72) 35%, rgba(18,15,30,0.72) 65%, rgba(18,15,30,0.95))',
+          }}
+        />
+        <div className="absolute inset-0 backdrop-blur-[2px]" />
+      </div>
+
       <motion.p
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -33,6 +33,21 @@ export default function ManifestoSection({
   const blur = useTransform(smooth, [0, 0.5, 1], [10, 0, 10]);
   const filter = useMotionTemplate`blur(${blur}px)`;
 
+  // The arrow comes and goes with the chapter, and stops accepting clicks once
+  // it has faded — otherwise every chapter's arrow would still be catching
+  // clicks through the one on screen.
+  const arrowEvents = useTransform(opacity, (v) => (v > 0.6 ? 'auto' : 'none'));
+
+  // Walks to the next snap point in document order rather than looking up an
+  // id, so each chapter finds its neighbour without every chapter needing a
+  // name — and the chapter before the carousel correctly lands on it.
+  const goNext = () => {
+    const el = ref.current;
+    if (!el) return;
+    const points = Array.from(document.querySelectorAll('[data-snap]'));
+    points[points.indexOf(el) + 1]?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div
       ref={ref}
@@ -59,6 +74,22 @@ export default function ManifestoSection({
             </p>
           );
         })}
+      </motion.div>
+
+      <motion.div
+        style={{ opacity, pointerEvents: arrowEvents }}
+        className="absolute bottom-14 left-1/2 z-10 -translate-x-1/2"
+      >
+        <button
+          type="button"
+          onClick={goNext}
+          aria-label="Go to the next section"
+          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+        >
+          <span aria-hidden className="animate-bounce-gentle block text-sm">
+            ↓
+          </span>
+        </button>
       </motion.div>
     </div>
   );

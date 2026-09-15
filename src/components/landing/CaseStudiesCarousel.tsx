@@ -214,6 +214,19 @@ export default function CaseStudiesCarousel() {
         >
           Skip the case studies
         </button>
+
+        {/* The same arrow the chapters carry, so leaving this section works the
+            way it does everywhere else on the page. */}
+        <button
+          type="button"
+          onClick={() => scrollToSection('manifesto-continue')}
+          aria-label="Go to the next section"
+          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+        >
+          <span aria-hidden className="animate-bounce-gentle block text-sm">
+            ↓
+          </span>
+        </button>
       </div>
     </section>
   );

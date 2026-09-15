@@ -5,67 +5,41 @@ import { ASSETS } from '@/lib/assets';
 import AssetTile from './AssetTile';
 
 /**
- * A few of the hero's floating assets drifting past each chapter, driven by
- * that chapter's own scroll progress. Each one moves at its own rate, so they
- * part around the text rather than travelling with it.
+ * A handful of the hero's floating assets orbiting the centre of each chapter,
+ * the same way they circle the landing page. Successive chapters turn opposite
+ * ways — the first clockwise, the next counter-clockwise — so the page doesn't
+ * read as one continuous rotation all the way down.
+ *
+ * The ring is an ellipse rather than a circle. A circle wide enough to clear
+ * the text, which runs to 48rem, would stand taller than the chapter itself and
+ * be cut off top and bottom; the stage squashes the ring vertically and each
+ * tile is stretched back by the inverse, so the assets travel an oval while
+ * staying perfectly round. See .chapter-stage in globals.css.
  *
  * Which assets appear is derived from the chapter index rather than randomised
  * at runtime: it stays varied between chapters but identical between server and
  * client, which a real `Math.random()` would not be.
  */
 
-type Slot = {
-  /** Horizontal placement, from whichever edge the asset hangs off. */
-  edge: 'left' | 'right';
-  inset: string;
-  top: string;
+type Placement = {
+  /** Width at desktop; the stage scales it down on smaller screens. */
   w: number;
-  /** How far it travels across the chapter, in px. Sign sets the direction. */
-  drift: number;
   tilt: number;
-  /** The mid-height slots need margin beside the text, which only exists on wide screens. */
-  wideOnly?: boolean;
+  /** Nudges the asset off the exact ellipse so the ring reads as a scatter. */
+  r: number;
 };
 
-const SLOTS: Slot[] = [
-  { edge: 'left', inset: '5%', top: '30%', w: 98, drift: -80, tilt: -6, wideOnly: true },
-  { edge: 'right', inset: '6%', top: '44%', w: 86, drift: 64, tilt: 5, wideOnly: true },
-  { edge: 'left', inset: '10%', top: '6%', w: 74, drift: -46, tilt: 7 },
-  { edge: 'right', inset: '12%', top: '78%', w: 80, drift: 54, tilt: -8 },
+const PLACEMENTS: Placement[] = [
+  { w: 92, tilt: -6, r: 1.0 },
+  { w: 78, tilt: 5, r: 1.12 },
+  { w: 86, tilt: -4, r: 0.92 },
+  { w: 74, tilt: 7, r: 1.08 },
+  { w: 88, tilt: -8, r: 0.95 },
+  { w: 80, tilt: 4, r: 1.05 },
 ];
 
-function ParallaxAsset({
-  slot,
-  assetIndex,
-  progress,
-  still,
-}: {
-  slot: Slot;
-  assetIndex: number;
-  progress: MotionValue<number>;
-  still: boolean;
-}) {
-  const drift = still ? 0 : slot.drift;
-  const y = useTransform(progress, [0, 1], [drift, -drift]);
-  // Held a little below full strength, and present over a wider band than the
-  // text, so the assets stay a backdrop rather than competing with the words.
-  const opacity = useTransform(progress, [0, 0.35, 0.65, 1], [0, 0.9, 0.9, 0]);
-
-  return (
-    <motion.div
-      style={{
-        y,
-        opacity,
-        position: 'absolute',
-        top: slot.top,
-        [slot.edge]: slot.inset,
-      }}
-      className={slot.wideOnly ? 'hidden lg:block' : undefined}
-    >
-      <AssetTile asset={ASSETS[assetIndex]} width={slot.w} tilt={slot.tilt} />
-    </motion.div>
-  );
-}
+/** Slow enough to read as drift rather than as a carousel. */
+const DURATION_S = 150;
 
 export default function ChapterAssets({
   progress,
@@ -76,19 +50,55 @@ export default function ChapterAssets({
 }) {
   const still = useReducedMotion() ?? false;
 
+  // Held a little below full strength, and present over a wider band than the
+  // text, so the assets stay a backdrop rather than competing with the words.
+  const opacity = useTransform(progress, [0, 0.35, 0.65, 1], [0, 0.9, 0.9, 0]);
+
+  // Odd chapters turn the other way.
+  const counter = index % 2 === 1;
+
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {SLOTS.map((slot, i) => (
-        <ParallaxAsset
-          key={i}
-          slot={slot}
-          // Walk the shared pool so no two chapters open with the same asset.
-          assetIndex={(index * SLOTS.length + i * 5) % ASSETS.length}
-          progress={progress}
-          still={still}
-        />
-      ))}
+    <motion.div className="chapter-stage" style={{ opacity }} aria-hidden>
+      <div className="chapter-ring">
+        <div
+          className="chapter-spin"
+          style={
+            {
+              '--orbit-dur': still ? '0s' : `${DURATION_S}s`,
+              '--orbit-dir': counter ? 'reverse' : 'normal',
+              '--orbit-dir-rev': counter ? 'normal' : 'reverse',
+            } as React.CSSProperties
+          }
+        >
+          {PLACEMENTS.map((p, i) => (
+            <div
+              key={i}
+              className="chapter-slot"
+              style={
+                {
+                  '--angle': `${(360 / PLACEMENTS.length) * i}deg`,
+                  '--r': p.r,
+                } as React.CSSProperties
+              }
+            >
+              <div className="chapter-upright">
+                <div className="chapter-unsquash">
+                  <AssetTile
+                    asset={
+                      // Walk the shared pool so no two chapters open on the same asset.
+                      ASSETS[(index * PLACEMENTS.length + i * 5) % ASSETS.length]
+                    }
+                    width={p.w}
+                    tilt={p.tilt}
+                    className="orbit-tile--centred"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="chapter-vignette" />
-    </div>
+    </motion.div>
   );
 }

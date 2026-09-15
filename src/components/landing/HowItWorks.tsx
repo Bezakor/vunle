@@ -83,7 +83,7 @@ export default function HowItWorks() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.7 }}
-        className="absolute bottom-14 left-1/2 -translate-x-1/2"
+        className="absolute bottom-32 md:bottom-36 left-1/2 -translate-x-1/2"
       >
         <button
           type="button"

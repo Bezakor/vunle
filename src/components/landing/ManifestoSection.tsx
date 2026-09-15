@@ -78,7 +78,7 @@ export default function ManifestoSection({
 
       <motion.div
         style={{ opacity, pointerEvents: arrowEvents }}
-        className="absolute bottom-14 left-1/2 z-10 -translate-x-1/2"
+        className="absolute bottom-32 md:bottom-36 left-1/2 z-10 -translate-x-1/2"
       >
         <button
           type="button"

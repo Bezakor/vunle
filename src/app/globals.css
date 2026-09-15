@@ -138,6 +138,111 @@ body {
   background-position: center;
 }
 
+/* --- chapter orbit --- */
+
+/* The chapter rings are elliptical, not circular. A circle wide enough to clear
+   the text — which runs to 48rem — would stand taller than the chapter itself
+   and be cut off top and bottom, so the ring is squashed vertically by --squash
+   and each tile is stretched back by its inverse. The assets travel an oval;
+   the tiles themselves stay perfectly round. */
+.chapter-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  --r-chapter: clamp(320px, 36vw, 540px);
+  --squash: 0.6;
+  --chapter-tile: 1;
+
+  /* A hole punched in the middle of the asset layer, sized to the text. On a
+     phone the words run nearly edge to edge, so no orbit — however wide — can
+     get round them; instead the assets fade out as they cross the centre and
+     come back up at the periphery. It doubles as polish on wider screens. */
+  --clear-w: 34%;
+  --clear-h: 24%;
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--clear-w) var(--clear-h) at 50% 50%,
+    transparent 0%,
+    transparent 48%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse var(--clear-w) var(--clear-h) at 50% 50%,
+    transparent 0%,
+    transparent 48%,
+    #000 100%
+  );
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .chapter-stage {
+    --r-chapter: clamp(260px, 44vw, 390px);
+    --squash: 0.68;
+    --chapter-tile: 0.76;
+    --clear-w: 48%;
+    --clear-h: 26%;
+  }
+}
+
+/* Phone. The text is close to full width here, so the ring is pushed out and
+   the tiles shrunk right down to leave the words a clear centre. */
+@media (max-width: 640px) {
+  .chapter-stage {
+    --r-chapter: clamp(200px, 56vw, 280px);
+    --squash: 0.8;
+    --chapter-tile: 0.5;
+    --clear-w: 92%;
+    --clear-h: 44%;
+  }
+}
+
+.chapter-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: scaleY(var(--squash));
+}
+
+/* Direction is set per chapter so successive chapters turn opposite ways. The
+   upright wrapper always runs the opposite way to the ring, cancelling it frame
+   for frame so a tile orbits without ever tipping over. */
+.chapter-spin {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+  animation: orbit-spin var(--orbit-dur, 150s) linear infinite;
+  animation-direction: var(--orbit-dir, normal);
+}
+
+.chapter-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(var(--angle)) translate(calc(var(--r-chapter) * var(--r)))
+    rotate(calc(-1 * var(--angle)));
+}
+
+.chapter-upright {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+  animation: orbit-spin var(--orbit-dur, 150s) linear infinite;
+  animation-direction: var(--orbit-dir-rev, reverse);
+}
+
+/* Undoes the ring's vertical squash. Everything between the two cancels out to
+   no net rotation, so this leaves the tile undistorted. */
+.chapter-unsquash {
+  width: 0;
+  height: 0;
+  transform: scaleY(calc(1 / var(--squash)));
+  scale: var(--chapter-tile);
+}
+
 /* --- orbit hero --- */
 
 .orbit-stage {
@@ -196,7 +301,8 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  transform: rotate(var(--angle)) translate(calc(var(--base) * var(--r))) rotate(calc(-1 * var(--angle)));
+  transform: rotate(var(--angle)) translate(calc(var(--base) * var(--r) * var(--spread, 1)))
+    rotate(calc(-1 * var(--angle)));
 }
 
 .orbit-ring--outer .orbit-slot {
@@ -303,7 +409,9 @@ body {
   .orbit-ring--outer,
   .orbit-ring--inner,
   .orbit-upright--outer,
-  .orbit-upright--inner {
+  .orbit-upright--inner,
+  .chapter-spin,
+  .chapter-upright {
     animation: none;
   }
 }

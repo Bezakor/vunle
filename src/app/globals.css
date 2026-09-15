@@ -138,6 +138,48 @@ body {
   background-position: center;
 }
 
+/* The case study card window. The chrome around it — eyebrow, dots, skip link
+   and arrow, plus the pinned section's own padding — is a fixed height, so what
+   is left for the card is the viewport minus a constant rather than a fraction
+   of it. A fixed height here pushed the eyebrow off the top of a 720px laptop
+   screen. The avatar is capped against viewport height for the same reason. */
+.cs-window {
+  /* 22.5rem is the measured height of everything else in the pinned area on a
+     tall screen — its padding, the eyebrow, the dots, the skip link and the
+     arrow. The short-screen value below is the same measurement once that
+     chrome has been trimmed. */
+  height: clamp(15rem, calc(100vh - var(--cs-chrome, 22.5rem)), 38rem);
+}
+
+/* Everything inside a card is sized in em against this, so the whole
+   composition scales as one rather than the box shrinking around fixed-size
+   contents. Capped on viewport width too, or a tall narrow phone would pick a
+   size meant for a desktop. */
+.cs-card-scale {
+  font-size: min(clamp(10px, 1.52vh, 16px), 3.2vw, 16px);
+}
+
+/* A short window — a 1366x768 or 1280x720 laptop, which is most laptops once
+   browser chrome is taken off — has to give the card its room back. The chrome
+   around it is a fixed height, so on a 720px screen it was taking more than
+   half of what was available and pushing the eyebrow off the top. */
+@media (max-height: 820px) {
+  .cs-pin {
+    --cs-chrome: 16rem;
+    padding-top: 1.25rem;
+  }
+
+  .cs-pin .eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  /* The arrow directly below does the same job, so the worded link is the
+     first thing to go when height is scarce. */
+  .cs-skip-link {
+    display: none;
+  }
+}
+
 /* --- chapter orbit --- */
 
 /* The chapter rings are elliptical, not circular. A circle wide enough to clear

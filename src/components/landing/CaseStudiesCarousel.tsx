@@ -32,7 +32,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
   if (!study.avatar || failed) {
     return (
       <div
-        className="flex h-40 w-40 items-center justify-center rounded-full text-3xl font-medium text-white"
+        className="flex h-[10em] w-[10em] shrink-0 items-center justify-center rounded-full text-[1.5em] font-medium text-white"
         style={{ background: gradient }}
       >
         {study.initials}
@@ -49,7 +49,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
       height={160}
       loading="lazy"
       onError={() => setFailed(true)}
-      className="h-40 w-40 rounded-full object-cover"
+      className="h-[10em] w-[10em] shrink-0 rounded-full object-cover"
       style={{ background: gradient }}
     />
   );
@@ -142,7 +142,7 @@ export default function CaseStudiesCarousel() {
       ))}
 
       <div
-        className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-32"
+        className="cs-pin sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-32"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
@@ -189,7 +189,10 @@ export default function CaseStudiesCarousel() {
             <ArrowIcon direction="left" />
           </button>
 
-          <div className="relative h-[32rem] overflow-hidden">
+          {/* The quote and description are deliberately unclamped: a clamp
+              here doesn't make the text fit, it only hides the part that
+              doesn't. .cs-window sizes the box to the viewport instead. */}
+          <div className="cs-window relative overflow-hidden">
             <AnimatePresence initial={false}>
               <motion.div
                 key={study.id}
@@ -197,18 +200,18 @@ export default function CaseStudiesCarousel() {
                 animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, x: -offset * state.direction, filter: 'blur(8px)' }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="paper-card absolute inset-0 flex flex-col items-center justify-center rounded-2xl p-8 text-center md:p-10"
+                className="paper-card cs-card-scale absolute inset-0 flex flex-col items-center justify-center rounded-2xl p-[2.5em] text-center"
               >
                 <Avatar study={study} index={state.index} />
 
-                <p className="mt-6 line-clamp-5 text-lg leading-relaxed tracking-tight text-balance text-[var(--ink)] md:text-xl">
+                <p className="mt-[1.5em] shrink-0 text-[1.25em] leading-relaxed tracking-tight text-balance text-[var(--ink)]">
                   {study.isQuote ? `“${study.headline}”` : study.headline}
                 </p>
 
-                <p className="mt-6 text-sm font-medium text-[var(--ink)]">{study.name}</p>
-                <p className="mt-1 text-[11px] tracking-wide text-[var(--ink-faint)]">{study.title}</p>
+                <p className="mt-[1.5em] shrink-0 text-[0.875em] font-medium text-[var(--ink)]">{study.name}</p>
+                <p className="mt-[0.25em] shrink-0 text-[0.7em] tracking-wide text-[var(--ink-faint)]">{study.title}</p>
 
-                <p className="mt-6 line-clamp-3 text-xs leading-relaxed text-[var(--ink-soft)]">
+                <p className="mt-[1.5em] shrink-0 text-[0.75em] leading-relaxed text-[var(--ink-soft)]">
                   {study.description}
                 </p>
               </motion.div>
@@ -244,7 +247,7 @@ export default function CaseStudiesCarousel() {
         <button
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
-          className="mt-6 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
+          className="cs-skip-link mt-6 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
         >
           Skip the case studies
         </button>

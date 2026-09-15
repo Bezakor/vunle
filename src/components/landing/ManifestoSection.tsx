@@ -14,7 +14,17 @@ import type { ManifestoBeat } from '@/lib/manifesto';
 import ChapterAssets from './ChapterAssets';
 
 /** Seconds between each word lighting up. */
-const WORD_STAGGER = 0.07;
+const WORD_STAGGER = 0.11;
+
+/** How long each word takes to fade up. */
+const WORD_DURATION = 0.5;
+
+/**
+ * A beat of stillness after the chapter settles before the first word lights,
+ * so the reveal reads as a deliberate opening rather than a reaction to the
+ * scroll stopping.
+ */
+const WORD_LEAD_IN = 1;
 
 /**
  * The chapter's closing line, revealed a word at a time once the chapter
@@ -46,7 +56,13 @@ function RevealingLine({
           transition={
             instant
               ? { duration: 0 }
-              : { duration: 0.34, ease: 'easeOut', delay: revealed ? i * WORD_STAGGER : 0 }
+              : {
+                  duration: WORD_DURATION,
+                  ease: 'easeOut',
+                  // The lead-in applies to arriving only; clearing happens off
+                  // screen and shouldn't wait a second to do it.
+                  delay: revealed ? WORD_LEAD_IN + i * WORD_STAGGER : 0,
+                }
           }
         >
           {i < words.length - 1 ? word + ' ' : word}

@@ -2,9 +2,10 @@
 
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { manifesto, howItWorks } from '@/lib/manifesto';
+import { manifesto } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
 import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
+import HowItWorks from '@/components/landing/HowItWorks';
 import OrbitHero from '@/components/landing/OrbitHero';
 import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
 import ScrollSnapController from '@/components/landing/ScrollSnapController';
@@ -57,41 +58,15 @@ export default function Home() {
         </section>
       </div>
 
-      {/* How it works */}
-      <section data-snap="" className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24">
-        <div className="grid w-full max-w-4xl gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
-          {howItWorks.map((item, i) => (
-            <motion.div
-              key={item.step}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.12 }}
-              className="bg-[var(--paper)] p-8 text-center"
-            >
-              <span className="text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
-              <h3 className="mt-4 text-base font-medium">{item.title}</h3>
-              <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>
-            </motion.div>
-          ))}
-        </div>
+      <HowItWorks />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-12 max-w-md text-center text-xs text-[var(--ink-faint)]"
-        >
-          Download &amp; listen to your personal visualisation guide.
-        </motion.p>
-      </section>
-
-      {/* Closing CTA */}
+      {/* Closing CTA. A full viewport tall so its top can actually reach the top
+          of the screen: at 70vh the page bottomed out 270px short, leaving the
+          last section unable to settle and the arrow above it unable to land. */}
       <section
         id="closing-cta"
         data-snap=""
-        className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pb-44 text-center"
+        className="relative flex min-h-screen flex-col items-center justify-center px-6 pb-44 text-center"
       >
         <motion.h2
           initial={{ opacity: 0, y: 16 }}

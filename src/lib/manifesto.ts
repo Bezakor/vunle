@@ -64,9 +64,9 @@ export const manifesto: ManifestoBeat[] = [
     lines: [
       'Maybe you want to improve your self belief, become more confident,',
       'more grateful, more successful, more content, achieve a life long goal,',
-      'get something you want, or become someone you know you can be,',
+      'get something you want,',
+      'or become someone you know you can be.',
     ],
-    flat: true,
   },
   {
     id: 'audio-journey',

@@ -121,6 +121,23 @@ body {
   scale: 0.94;
 }
 
+/* --- case studies backdrop --- */
+
+/* The white wash over the background video. Kept just short of opaque so the
+   footage still reads as a soft texture and the dot grid has something to sit
+   against; take it to 1 and both disappear. */
+.cs-scrim {
+  background: rgba(255, 255, 255, var(--cs-scrim, 0.88));
+}
+
+/* Grid of white dots over the scrim. They show up where the footage behind is
+   darker, so the pattern breathes with the video rather than sitting flat. */
+.dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.95) 1.4px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+
 /* --- orbit hero --- */
 
 .orbit-stage {

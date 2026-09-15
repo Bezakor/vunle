@@ -14,7 +14,7 @@ const N = caseStudies.length;
 const SWIPE_THRESHOLD = 40;
 
 // Swap in whichever YouTube video should sit behind the case studies.
-const BACKGROUND_VIDEO_ID = 'ZToicYcHIOU';
+const BACKGROUND_VIDEO_ID = 'LczM2U71iHw';
 
 function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -108,11 +108,14 @@ export default function CaseStudiesCarousel() {
         onTouchEnd={onTouchEnd}
       >
         {/* Full-bleed video backdrop. The gradient underneath is what shows if the
-            embed is blocked or slow, so the section still reads as designed. */}
+            embed is blocked or slow, so it stands in for dark footage rather
+            than for paper: the white scrim above lifts it to near-white anyway,
+            and a light fallback would leave the white dots invisible and the
+            section looking empty. */}
         <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
           <div
             className="absolute inset-0"
-            style={{ background: 'radial-gradient(circle at 50% 35%, #f6f6f8, #ffffff 70%)' }}
+            style={{ background: 'radial-gradient(circle at 50% 35%, #3c3c44, #16161a 70%)' }}
           />
           {!reduceMotion && (
             <iframe
@@ -126,15 +129,13 @@ export default function CaseStudiesCarousel() {
               style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
             />
           )}
-          {/* Overlay: darkens and cools the footage so the cards stay readable. */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(to bottom, rgba(255,255,255,0.97), rgba(255,255,255,0.86) 35%, rgba(255,255,255,0.86) 65%, rgba(255,255,255,0.98))',
-            }}
-          />
+          {/* White scrim over the footage, then a grid of white dots on top of
+              it. Held just short of fully opaque on purpose: at a true 1.0 the
+              video would be covered completely and the white dots would have
+              nothing to read against. --cs-scrim in globals.css is the knob. */}
           <div className="absolute inset-0 backdrop-blur-[2px]" />
+          <div className="cs-scrim absolute inset-0" />
+          <div className="dot-grid absolute inset-0" />
         </div>
 
         <p className="eyebrow mb-8">Case studies</p>

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
-import { caseStudies } from '@/lib/caseStudies';
+import { caseStudies, type CaseStudy } from '@/lib/caseStudies';
 
 const AVATAR_GRADIENTS = [
   'radial-gradient(circle at 30% 30%, #b7a5ff, #4b3f7a 75%)',
@@ -15,6 +15,45 @@ const SWIPE_THRESHOLD = 40;
 
 // Swap in whichever YouTube video should sit behind the case studies.
 const BACKGROUND_VIDEO_ID = 'LczM2U71iHw';
+
+/**
+ * The person's portrait, falling back to their initials on the gradient disc.
+ * The fallback covers both the file not being there yet and a load failure, so
+ * the carousel never shows a broken image.
+ */
+function Avatar({ study, index }: { study: CaseStudy; index: number }) {
+  // The card this sits in is keyed by study id, so a new card remounts this
+  // and each portrait gets its own attempt rather than inheriting the last
+  // one's failure.
+  const [failed, setFailed] = useState(false);
+
+  const gradient = AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
+
+  if (!study.avatar || failed) {
+    return (
+      <div
+        className="flex h-20 w-20 items-center justify-center rounded-full text-lg font-medium text-white"
+        style={{ background: gradient }}
+      >
+        {study.initials}
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={study.avatar}
+      alt={study.name}
+      width={80}
+      height={80}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="h-20 w-20 rounded-full object-cover"
+      style={{ background: gradient }}
+    />
+  );
+}
 
 function ArrowIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -160,12 +199,7 @@ export default function CaseStudiesCarousel() {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
                 className="paper-card absolute inset-0 flex flex-col items-center justify-center rounded-2xl p-8 text-center md:p-10"
               >
-                <div
-                  className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-medium text-white"
-                  style={{ background: AVATAR_GRADIENTS[state.index % AVATAR_GRADIENTS.length] }}
-                >
-                  {study.initials}
-                </div>
+                <Avatar study={study} index={state.index} />
 
                 <p className="mt-6 line-clamp-5 text-lg leading-relaxed tracking-tight text-balance text-[var(--ink)] md:text-xl">
                   {study.isQuote ? `“${study.headline}”` : study.headline}

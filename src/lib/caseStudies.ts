@@ -3,6 +3,12 @@ export interface CaseStudy {
   name: string;
   title: string;
   initials: string;
+  /**
+   * Portrait in /public/case-studies. The initials above stand in until the
+   * file is there — and if one ever fails to load, so the carousel never shows
+   * a broken image.
+   */
+  avatar: string;
   headline: string;
   isQuote: boolean;
   description: string;
@@ -11,6 +17,7 @@ export interface CaseStudy {
 export const caseStudies: CaseStudy[] = [
   {
     id: 'jordan',
+    avatar: '/case-studies/jordan.jpg',
     name: 'Michael Jordan',
     title: 'NBA Hall-of-Fame Athlete',
     initials: 'MJ',
@@ -22,6 +29,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'gaga',
+    avatar: '/case-studies/gaga.jpg',
     name: 'Lady Gaga',
     title: 'Musician, Artist',
     initials: 'LG',
@@ -32,6 +40,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'robbins-tony',
+    avatar: '/case-studies/robbins-tony.jpg',
     name: 'Tony Robbins',
     title: 'Speaker, Philanthropist',
     initials: 'TR',
@@ -42,6 +51,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'robbins-mel',
+    avatar: '/case-studies/robbins-mel.jpg',
     name: 'Mel Robbins',
     title: 'Author, Host',
     initials: 'MR',
@@ -53,6 +63,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'dispenza',
+    avatar: '/case-studies/dispenza.jpg',
     name: 'Dr. Joe Dispenza',
     title: 'Neuroscientist, Author',
     initials: 'JD',

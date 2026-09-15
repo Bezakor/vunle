@@ -30,16 +30,21 @@ type Placement = {
 };
 
 const PLACEMENTS: Placement[] = [
-  { w: 92, tilt: -6, r: 1.0 },
-  { w: 78, tilt: 5, r: 1.12 },
-  { w: 86, tilt: -4, r: 0.92 },
-  { w: 74, tilt: 7, r: 1.08 },
-  { w: 88, tilt: -8, r: 0.95 },
-  { w: 80, tilt: 4, r: 1.05 },
+  { w: 96, tilt: -6, r: 1.0 },
+  { w: 82, tilt: 5, r: 1.1 },
+  { w: 88, tilt: -4, r: 0.93 },
 ];
 
 /** Slow enough to read as drift rather than as a carousel. */
 const DURATION_S = 150;
+
+/**
+ * One, two or three assets, cycling by chapter. Kept sparse on purpose: these
+ * are meant to be glimpsed past the words, not to fill the margins.
+ */
+function countFor(index: number) {
+  return 1 + (index % 3);
+}
 
 export default function ChapterAssets({
   progress,
@@ -56,6 +61,7 @@ export default function ChapterAssets({
 
   // Odd chapters turn the other way.
   const counter = index % 2 === 1;
+  const placements = PLACEMENTS.slice(0, countFor(index));
 
   return (
     <motion.div className="chapter-stage" style={{ opacity }} aria-hidden>
@@ -70,13 +76,15 @@ export default function ChapterAssets({
             } as React.CSSProperties
           }
         >
-          {PLACEMENTS.map((p, i) => (
+          {placements.map((p, i) => (
             <div
               key={i}
               className="chapter-slot"
               style={
                 {
-                  '--angle': `${(360 / PLACEMENTS.length) * i}deg`,
+                  // Offset per chapter so a run of chapters doesn't keep
+                  // putting its assets in the same corner of the screen.
+                  '--angle': `${(360 / placements.length) * i + index * 47}deg`,
                   '--r': p.r,
                 } as React.CSSProperties
               }

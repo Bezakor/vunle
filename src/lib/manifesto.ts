@@ -1,12 +1,15 @@
 export interface ManifestoBeat {
   id: string;
   lines: string[];
-  size?: 'md' | 'lg' | 'xl';
-  serif?: boolean;
   /** Extra line indices to render in the accent colour. The closing line always is. */
   accentLines?: number[];
   /** Line indices after which to open an extra paragraph space. */
   gapAfter?: number[];
+  /**
+   * Render every line as plain body text. Use it where the lines are one
+   * continuous sentence, so the closing line isn't singled out mid-thought.
+   */
+  flat?: boolean;
 }
 
 export const manifesto: ManifestoBeat[] = [
@@ -18,8 +21,6 @@ export const manifesto: ManifestoBeat[] = [
       'and an imagined one.',
       "Some of the world's most successful athletes, entrepreneurs, artists, and creatives know this…",
     ],
-    size: 'xl',
-    serif: true,
   },
   {
     id: 'athletes',
@@ -29,7 +30,6 @@ export const manifesto: ManifestoBeat[] = [
       'and the body follows.',
       "Here's 5 case studies…",
     ],
-    size: 'md',
   },
   {
     id: 'rehearsal',
@@ -39,8 +39,6 @@ export const manifesto: ManifestoBeat[] = [
       'It’s training your nervous system for the life you want.',
       'But here’s the big problem…',
     ],
-    size: 'lg',
-    serif: true,
   },
   {
     id: 'problem',
@@ -50,22 +48,25 @@ export const manifesto: ManifestoBeat[] = [
       'But your dreams aren’t generic.',
       'So your inner voice shouldn’t be either.',
     ],
-    size: 'md',
   },
   {
     id: 'exists',
     lines: [
       'That’s why Vunle exists.',
       'Vunle creates a guided visualization made only for you.',
+      'Here’s how it works…',
+    ],
+    accentLines: [0, 1],
+    gapAfter: [1],
+  },
+  {
+    id: 'wants',
+    lines: [
       'Maybe you want to improve your self belief, become more confident,',
       'more grateful, more successful, more content, achieve a life long goal,',
       'get something you want, or become someone you know you can be,',
-      'Here’s how it works…',
     ],
-    size: 'md',
-    serif: true,
-    accentLines: [0, 1],
-    gapAfter: [1],
+    flat: true,
   },
   {
     id: 'audio-journey',
@@ -75,7 +76,6 @@ export const manifesto: ManifestoBeat[] = [
       'that speaks directly to your subconscious.',
       'There are 3 quick steps…',
     ],
-    size: 'md',
   },
 ];
 

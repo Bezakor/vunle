@@ -222,6 +222,26 @@ body {
   object-fit: cover;
 }
 
+/* Centres an asset on its orbit slot. The tilt is applied through the separate
+   `rotate` property, which composes with this rather than overwriting it. */
+.orbit-tile--centred {
+  transform: translate(-50%, -50%);
+}
+
+/* The chapter equivalent of the hero vignette: assets drifting past the text
+   dissolve into the paper at the edges instead of being clipped by them. */
+.chapter-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 82% 78% at 50% 50%,
+    rgba(255, 255, 255, 0) 55%,
+    rgba(255, 255, 255, 0.55) 82%,
+    #ffffff 100%
+  );
+}
+
 .orbit-upright--outer,
 .orbit-upright--inner {
   scale: var(--tile-scale);

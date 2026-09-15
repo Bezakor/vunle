@@ -3,8 +3,17 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionTemplate } from 'framer-motion';
 import type { ManifestoBeat } from '@/lib/manifesto';
+import ChapterAssets from './ChapterAssets';
 
-export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id?: string }) {
+export default function ManifestoSection({
+  beat,
+  id,
+  index = 0,
+}: {
+  beat: ManifestoBeat;
+  id?: string;
+  index?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   // The midpoint has to be the position the section actually comes to rest in,
@@ -25,8 +34,15 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
   const filter = useMotionTemplate`blur(${blur}px)`;
 
   return (
-    <div ref={ref} id={id} data-snap="" className="flex min-h-[85vh] items-center justify-center px-6 py-24">
-      <motion.div style={{ opacity, y, filter }} className="max-w-3xl text-center">
+    <div
+      ref={ref}
+      id={id}
+      data-snap=""
+      className="relative flex min-h-[85vh] items-center justify-center px-6 py-24"
+    >
+      <ChapterAssets progress={scrollYProgress} index={index} />
+
+      <motion.div style={{ opacity, y, filter }} className="relative z-10 max-w-3xl text-center">
         {beat.lines.map((line, i) => {
           const isClosing = !beat.flat && i === beat.lines.length - 1 && beat.lines.length > 1;
           const accent = isClosing || beat.accentLines?.includes(i);

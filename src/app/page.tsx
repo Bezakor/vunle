@@ -31,6 +31,7 @@ export default function Home() {
             <ManifestoSection
               key={beat.id}
               beat={beat}
+              index={i}
               id={i === manifestoBeforeCaseStudies.length - 1 ? 'manifesto-before-cases' : undefined}
             />
           ))}
@@ -40,7 +41,12 @@ export default function Home() {
 
         <section className="relative">
           {manifestoAfterCaseStudies.map((beat, i) => (
-            <ManifestoSection key={beat.id} beat={beat} id={i === 0 ? 'manifesto-continue' : undefined} />
+            <ManifestoSection
+              key={beat.id}
+              beat={beat}
+              index={splitIndex + i}
+              id={i === 0 ? 'manifesto-continue' : undefined}
+            />
           ))}
         </section>
       </div>

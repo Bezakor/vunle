@@ -1,97 +1,65 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ASSETS } from '@/lib/assets';
+import AssetTile from './AssetTile';
 
 /**
- * Two concentric rings of tiles orbiting the centred headline — the outer ring
- * clockwise, the inner ring counter-clockwise. Each tile counter-rotates against
- * its ring so it orbits without ever tipping over.
+ * Two concentric rings of assets orbiting the centred headline — the outer ring
+ * clockwise, the inner ring counter-clockwise. Each asset counter-rotates
+ * against its ring so it orbits without ever tipping over.
  *
- * The tiles are abstract gradients rather than photographs: Vunle is about the
- * image you build in your own head, so nothing here should look like a specific
- * stock scene.
+ * A placement only says where an asset sits: `a` indexes the shared pool, `w`
+ * is its width at desktop (the stage scales it down on smaller screens), and
+ * `r` nudges it off the exact circle so the rings read as a scatter.
  */
+type Placement = { a: number; w: number; tilt: number; r: number };
 
-/**
- * A tile is a media container. Give it a `src` (and `kind: 'video'` for footage)
- * and it fills the frame; until then the gradient stands in as a placeholder.
- * Frames are square or portrait only — never landscape.
- *
- * `w` is the width in px at desktop (the stage scales it down on smaller
- * screens), and `r` nudges the tile off the exact circle so the rings read as a
- * scatter rather than a perfect ring.
- */
-type Tile = {
-  w: number;
-  ratio: '1 / 1' | '3 / 4' | '4 / 5';
-  tilt: number;
-  r: number;
-  g: string;
-  src?: string;
-  kind?: 'image' | 'video';
-};
-
-const OUTER: Tile[] = [
-  { g: 'linear-gradient(150deg, #e8ecf5, #8d9bb5)', w: 112, ratio: '3 / 4', tilt: -7, r: 1.0 },
-  { g: 'linear-gradient(160deg, #f4e3d7, #c08a63)', w: 124, ratio: '1 / 1', tilt: 5, r: 0.87 },
-  { g: 'linear-gradient(200deg, #dfeae2, #7d9a88)', w: 100, ratio: '4 / 5', tilt: -3, r: 1.09 },
-  { g: 'linear-gradient(140deg, #f2e2ea, #b98aa4)', w: 118, ratio: '1 / 1', tilt: 8, r: 0.92 },
-  { g: 'linear-gradient(170deg, #e2e8f4, #5b6b88)', w: 106, ratio: '3 / 4', tilt: -5, r: 1.05 },
-  { g: 'linear-gradient(190deg, #f6ead2, #c8a465)', w: 128, ratio: '1 / 1', tilt: 4, r: 0.89 },
-  { g: 'linear-gradient(155deg, #e9e5f2, #8579a8)', w: 110, ratio: '3 / 4', tilt: -9, r: 1.07 },
-  { g: 'linear-gradient(165deg, #dfeaef, #6d8f9e)', w: 120, ratio: '4 / 5', tilt: 6, r: 0.9 },
-  { g: 'linear-gradient(145deg, #f3e4e4, #b07b7b)', w: 104, ratio: '3 / 4', tilt: -4, r: 1.02 },
-  { g: 'linear-gradient(185deg, #e6eddc, #8a9b6a)', w: 126, ratio: '1 / 1', tilt: 7, r: 0.88 },
-  { g: 'linear-gradient(175deg, #e7e6f3, #6f6c99)', w: 108, ratio: '3 / 4', tilt: -6, r: 1.08 },
-  { g: 'linear-gradient(135deg, #f5e6da, #bb8560)', w: 116, ratio: '4 / 5', tilt: 3, r: 0.93 },
-  { g: 'linear-gradient(195deg, #e0ece4, #6f9079)', w: 102, ratio: '3 / 4', tilt: -8, r: 1.01 },
+const OUTER: Placement[] = [
+  { a: 0, w: 112, tilt: -7, r: 1.0 },
+  { a: 1, w: 124, tilt: 5, r: 0.87 },
+  { a: 2, w: 100, tilt: -3, r: 1.09 },
+  { a: 3, w: 118, tilt: 8, r: 0.92 },
+  { a: 4, w: 106, tilt: -5, r: 1.05 },
+  { a: 5, w: 128, tilt: 4, r: 0.89 },
+  { a: 6, w: 110, tilt: -9, r: 1.07 },
+  { a: 7, w: 120, tilt: 6, r: 0.9 },
+  { a: 8, w: 104, tilt: -4, r: 1.02 },
+  { a: 9, w: 126, tilt: 7, r: 0.88 },
+  { a: 10, w: 108, tilt: -6, r: 1.08 },
+  { a: 11, w: 116, tilt: 3, r: 0.93 },
+  { a: 12, w: 102, tilt: -8, r: 1.01 },
 ];
 
-const INNER: Tile[] = [
-  { g: 'linear-gradient(160deg, #f0f2f6, #a8b2c2)', w: 86, ratio: '3 / 4', tilt: 6, r: 1.0 },
-  { g: 'linear-gradient(140deg, #f5e6e8, #c08e95)', w: 94, ratio: '1 / 1', tilt: -5, r: 1.11 },
-  { g: 'linear-gradient(180deg, #e6eef5, #7d97ae)', w: 82, ratio: '4 / 5', tilt: 4, r: 0.93 },
-  { g: 'linear-gradient(150deg, #efe9f4, #9287ac)', w: 90, ratio: '1 / 1', tilt: -7, r: 1.09 },
-  { g: 'linear-gradient(170deg, #f6efdd, #c4a878)', w: 84, ratio: '3 / 4', tilt: 5, r: 0.95 },
-  { g: 'linear-gradient(190deg, #e7f0e9, #85a292)', w: 96, ratio: '1 / 1', tilt: -3, r: 1.07 },
-  { g: 'linear-gradient(155deg, #e7eaf4, #7b85a6)', w: 82, ratio: '3 / 4', tilt: 8, r: 0.96 },
-  { g: 'linear-gradient(165deg, #f7ece2, #c49a76)', w: 92, ratio: '4 / 5', tilt: -6, r: 1.1 },
+const INNER: Placement[] = [
+  { a: 13, w: 86, tilt: 6, r: 1.0 },
+  { a: 14, w: 94, tilt: -5, r: 1.11 },
+  { a: 15, w: 82, tilt: 4, r: 0.93 },
+  { a: 16, w: 90, tilt: -7, r: 1.09 },
+  { a: 17, w: 84, tilt: 5, r: 0.95 },
+  { a: 18, w: 96, tilt: -3, r: 1.07 },
+  { a: 19, w: 82, tilt: 8, r: 0.96 },
+  { a: 20, w: 92, tilt: -6, r: 1.1 },
 ];
 
-function Ring({ tiles, layer }: { tiles: Tile[]; layer: 'outer' | 'inner' }) {
+function Ring({ placements, layer }: { placements: Placement[]; layer: 'outer' | 'inner' }) {
   // Radii come from --r-outer / --r-inner on the stage, so the breakpoints
   // there retune both rings without touching this markup.
   return (
     <div className={`orbit-ring orbit-ring--${layer}`}>
-      {tiles.map((tile, i) => (
+      {placements.map((p, i) => (
         <div
           key={i}
           className="orbit-slot"
           style={
             {
-              '--angle': `${(360 / tiles.length) * i}deg`,
-              '--r': tile.r,
+              '--angle': `${(360 / placements.length) * i}deg`,
+              '--r': p.r,
             } as React.CSSProperties
           }
         >
           <div className={`orbit-upright--${layer}`}>
-            <div
-              className="orbit-tile"
-              style={{
-                width: tile.w,
-                aspectRatio: tile.ratio,
-                background: tile.src ? undefined : tile.g,
-                transform: `translate(-50%, -50%) rotate(${tile.tilt}deg)`,
-              }}
-            >
-              {tile.src &&
-                (tile.kind === 'video' ? (
-                  <video className="orbit-media" src={tile.src} autoPlay muted loop playsInline />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="orbit-media" src={tile.src} alt="" />
-                ))}
-            </div>
+            <AssetTile asset={ASSETS[p.a]} width={p.w} tilt={p.tilt} className="orbit-tile--centred" />
           </div>
         </div>
       ))}
@@ -103,8 +71,8 @@ export default function OrbitHero() {
   return (
     <section data-snap="" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
       <div className="orbit-stage" aria-hidden>
-        <Ring tiles={OUTER} layer="outer" />
-        <Ring tiles={INNER} layer="inner" />
+        <Ring placements={OUTER} layer="outer" />
+        <Ring placements={INNER} layer="inner" />
         <div className="orbit-vignette" />
       </div>
 

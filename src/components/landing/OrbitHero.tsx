@@ -12,41 +12,55 @@ import { motion } from 'framer-motion';
  * stock scene.
  */
 
-/** `r` nudges a tile off the exact circle so the rings read as a scatter. */
-type Tile = { g: string; w: number; h: number; tilt: number; r: number };
+/**
+ * A tile is a media container. Give it a `src` (and `kind: 'video'` for footage)
+ * and it fills the frame; until then the gradient stands in as a placeholder.
+ * Frames are square or portrait only — never landscape.
+ *
+ * `w` is the width in px at desktop (the stage scales it down on smaller
+ * screens), and `r` nudges the tile off the exact circle so the rings read as a
+ * scatter rather than a perfect ring.
+ */
+type Tile = {
+  w: number;
+  ratio: '1 / 1' | '3 / 4' | '4 / 5';
+  tilt: number;
+  r: number;
+  g: string;
+  src?: string;
+  kind?: 'image' | 'video';
+};
 
 const OUTER: Tile[] = [
-  { g: 'linear-gradient(150deg, #e8ecf5, #8d9bb5)', w: 108, h: 140, tilt: -7, r: 1.0 },
-  { g: 'linear-gradient(160deg, #f4e3d7, #c08a63)', w: 132, h: 96, tilt: 5, r: 0.88 },
-  { g: 'linear-gradient(200deg, #dfeae2, #7d9a88)', w: 96, h: 126, tilt: -3, r: 1.08 },
-  { g: 'linear-gradient(140deg, #f2e2ea, #b98aa4)', w: 136, h: 100, tilt: 8, r: 0.93 },
-  { g: 'linear-gradient(170deg, #e2e8f4, #5b6b88)', w: 104, h: 136, tilt: -5, r: 1.04 },
-  { g: 'linear-gradient(190deg, #f6ead2, #c8a465)', w: 124, h: 92, tilt: 4, r: 0.9 },
-  { g: 'linear-gradient(155deg, #e9e5f2, #8579a8)', w: 110, h: 142, tilt: -9, r: 1.06 },
-  { g: 'linear-gradient(165deg, #dfeaef, #6d8f9e)', w: 130, h: 98, tilt: 6, r: 0.91 },
-  { g: 'linear-gradient(145deg, #f3e4e4, #b07b7b)', w: 100, h: 130, tilt: -4, r: 1.02 },
-  { g: 'linear-gradient(185deg, #e6eddc, #8a9b6a)', w: 126, h: 94, tilt: 7, r: 0.89 },
-  { g: 'linear-gradient(175deg, #e7e6f3, #6f6c99)', w: 106, h: 138, tilt: -6, r: 1.07 },
-  { g: 'linear-gradient(135deg, #f5e6da, #bb8560)', w: 120, h: 100, tilt: 3, r: 0.94 },
-  { g: 'linear-gradient(195deg, #e0ece4, #6f9079)', w: 102, h: 132, tilt: -8, r: 1.01 },
+  { g: 'linear-gradient(150deg, #e8ecf5, #8d9bb5)', w: 112, ratio: '3 / 4', tilt: -7, r: 1.0 },
+  { g: 'linear-gradient(160deg, #f4e3d7, #c08a63)', w: 124, ratio: '1 / 1', tilt: 5, r: 0.87 },
+  { g: 'linear-gradient(200deg, #dfeae2, #7d9a88)', w: 100, ratio: '4 / 5', tilt: -3, r: 1.09 },
+  { g: 'linear-gradient(140deg, #f2e2ea, #b98aa4)', w: 118, ratio: '1 / 1', tilt: 8, r: 0.92 },
+  { g: 'linear-gradient(170deg, #e2e8f4, #5b6b88)', w: 106, ratio: '3 / 4', tilt: -5, r: 1.05 },
+  { g: 'linear-gradient(190deg, #f6ead2, #c8a465)', w: 128, ratio: '1 / 1', tilt: 4, r: 0.89 },
+  { g: 'linear-gradient(155deg, #e9e5f2, #8579a8)', w: 110, ratio: '3 / 4', tilt: -9, r: 1.07 },
+  { g: 'linear-gradient(165deg, #dfeaef, #6d8f9e)', w: 120, ratio: '4 / 5', tilt: 6, r: 0.9 },
+  { g: 'linear-gradient(145deg, #f3e4e4, #b07b7b)', w: 104, ratio: '3 / 4', tilt: -4, r: 1.02 },
+  { g: 'linear-gradient(185deg, #e6eddc, #8a9b6a)', w: 126, ratio: '1 / 1', tilt: 7, r: 0.88 },
+  { g: 'linear-gradient(175deg, #e7e6f3, #6f6c99)', w: 108, ratio: '3 / 4', tilt: -6, r: 1.08 },
+  { g: 'linear-gradient(135deg, #f5e6da, #bb8560)', w: 116, ratio: '4 / 5', tilt: 3, r: 0.93 },
+  { g: 'linear-gradient(195deg, #e0ece4, #6f9079)', w: 102, ratio: '3 / 4', tilt: -8, r: 1.01 },
 ];
 
 const INNER: Tile[] = [
-  { g: 'linear-gradient(160deg, #f0f2f6, #a8b2c2)', w: 84, h: 108, tilt: 6, r: 1.0 },
-  { g: 'linear-gradient(140deg, #f5e6e8, #c08e95)', w: 98, h: 76, tilt: -5, r: 1.1 },
-  { g: 'linear-gradient(180deg, #e6eef5, #7d97ae)', w: 80, h: 104, tilt: 4, r: 0.94 },
-  { g: 'linear-gradient(150deg, #efe9f4, #9287ac)', w: 94, h: 78, tilt: -7, r: 1.08 },
-  { g: 'linear-gradient(170deg, #f6efdd, #c4a878)', w: 84, h: 110, tilt: 5, r: 0.96 },
-  { g: 'linear-gradient(190deg, #e7f0e9, #85a292)', w: 100, h: 76, tilt: -3, r: 1.06 },
-  { g: 'linear-gradient(155deg, #e7eaf4, #7b85a6)', w: 80, h: 106, tilt: 8, r: 0.97 },
-  { g: 'linear-gradient(165deg, #f7ece2, #c49a76)', w: 96, h: 78, tilt: -6, r: 1.09 },
+  { g: 'linear-gradient(160deg, #f0f2f6, #a8b2c2)', w: 86, ratio: '3 / 4', tilt: 6, r: 1.0 },
+  { g: 'linear-gradient(140deg, #f5e6e8, #c08e95)', w: 94, ratio: '1 / 1', tilt: -5, r: 1.11 },
+  { g: 'linear-gradient(180deg, #e6eef5, #7d97ae)', w: 82, ratio: '4 / 5', tilt: 4, r: 0.93 },
+  { g: 'linear-gradient(150deg, #efe9f4, #9287ac)', w: 90, ratio: '1 / 1', tilt: -7, r: 1.09 },
+  { g: 'linear-gradient(170deg, #f6efdd, #c4a878)', w: 84, ratio: '3 / 4', tilt: 5, r: 0.95 },
+  { g: 'linear-gradient(190deg, #e7f0e9, #85a292)', w: 96, ratio: '1 / 1', tilt: -3, r: 1.07 },
+  { g: 'linear-gradient(155deg, #e7eaf4, #7b85a6)', w: 82, ratio: '3 / 4', tilt: 8, r: 0.96 },
+  { g: 'linear-gradient(165deg, #f7ece2, #c49a76)', w: 92, ratio: '4 / 5', tilt: -6, r: 1.1 },
 ];
 
 function Ring({ tiles, layer }: { tiles: Tile[]; layer: 'outer' | 'inner' }) {
-  // The inner ring has to clear the headline block, so it starts well out from
-  // the centre rather than hugging it.
-  const base = layer === 'outer' ? 'clamp(300px, 40vw, 680px)' : 'clamp(200px, 29vw, 450px)';
-
+  // Radii come from --r-outer / --r-inner on the stage, so the breakpoints
+  // there retune both rings without touching this markup.
   return (
     <div className={`orbit-ring orbit-ring--${layer}`}>
       {tiles.map((tile, i) => (
@@ -56,7 +70,7 @@ function Ring({ tiles, layer }: { tiles: Tile[]; layer: 'outer' | 'inner' }) {
           style={
             {
               '--angle': `${(360 / tiles.length) * i}deg`,
-              '--radius': `calc(${base} * ${tile.r})`,
+              '--r': tile.r,
             } as React.CSSProperties
           }
         >
@@ -65,11 +79,19 @@ function Ring({ tiles, layer }: { tiles: Tile[]; layer: 'outer' | 'inner' }) {
               className="orbit-tile"
               style={{
                 width: tile.w,
-                height: tile.h,
-                background: tile.g,
+                aspectRatio: tile.ratio,
+                background: tile.src ? undefined : tile.g,
                 transform: `translate(-50%, -50%) rotate(${tile.tilt}deg)`,
               }}
-            />
+            >
+              {tile.src &&
+                (tile.kind === 'video' ? (
+                  <video className="orbit-media" src={tile.src} autoPlay muted loop playsInline />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="orbit-media" src={tile.src} alt="" />
+                ))}
+            </div>
           </div>
         </div>
       ))}
@@ -83,7 +105,7 @@ export default function OrbitHero() {
       <div className="orbit-stage" aria-hidden>
         <Ring tiles={OUTER} layer="outer" />
         <Ring tiles={INNER} layer="inner" />
-        <div className="orbit-veil" />
+        <div className="orbit-vignette" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center">
@@ -100,7 +122,7 @@ export default function OrbitHero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.12 }}
-          className="mt-6 max-w-3xl text-4xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] md:text-6xl"
+          className="mt-6 max-w-2xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-5xl"
         >
           Personal goals need
           <br />

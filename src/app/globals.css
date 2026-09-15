@@ -128,6 +128,32 @@ body {
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+
+  /* Ring radii and tile scale live here so the breakpoints below can retune the
+     whole composition in one place. Desktop: the outer ring sits well clear of
+     the inner one rather than crowding it. */
+  --r-outer: clamp(380px, 46vw, 820px);
+  --r-inner: clamp(240px, 31vw, 470px);
+  --tile-scale: 1;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .orbit-stage {
+    --r-outer: clamp(340px, 58vw, 620px);
+    --r-inner: clamp(245px, 34vw, 350px);
+    --tile-scale: 0.72;
+  }
+}
+
+/* Phone. The headline is close to full width here, so the inner ring has to be
+   pushed right out to the edges to leave the type a clear centre. */
+@media (max-width: 640px) {
+  .orbit-stage {
+    --r-outer: clamp(280px, 80vw, 380px);
+    --r-inner: clamp(200px, 52vw, 260px);
+    --tile-scale: 0.44;
+  }
 }
 
 .orbit-ring {
@@ -147,12 +173,21 @@ body {
   animation: orbit-spin 110s linear infinite reverse;
 }
 
-/* Placed on the circle, then turned back upright. */
+/* Placed on the circle, then turned back upright. `--r` nudges an individual
+   tile off the exact circle so the rings read as a scatter. */
 .orbit-slot {
   position: absolute;
   left: 0;
   top: 0;
-  transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(-1 * var(--angle)));
+  transform: rotate(var(--angle)) translate(calc(var(--base) * var(--r))) rotate(calc(-1 * var(--angle)));
+}
+
+.orbit-ring--outer .orbit-slot {
+  --base: var(--r-outer);
+}
+
+.orbit-ring--inner .orbit-slot {
+  --base: var(--r-inner);
 }
 
 /* Cancels the parent ring's rotation frame for frame, so a tile orbits the
@@ -172,35 +207,39 @@ body {
   animation: orbit-spin 110s linear infinite;
 }
 
+/* A container, not a decoration: drop an <img> or <video> in and it fills the
+   frame. The gradient is only the placeholder until real media arrives. */
 .orbit-tile {
+  overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 2px 6px rgba(17, 17, 17, 0.05), 0 22px 45px rgba(17, 17, 17, 0.09);
 }
 
-/* Keeps clear white space around the headline whatever a tile drifts over, so
-   the centre always reads. Sits above the rings, below the text. */
-.orbit-veil {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(1100px, 94vw);
-  height: min(640px, 66vh);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse closest-side,
-    rgba(255, 255, 255, 0.97) 0%,
-    rgba(255, 255, 255, 0.93) 42%,
-    rgba(255, 255, 255, 0) 100%
-  );
+.orbit-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* The tiles are sized for a wide viewport; on a phone they'd crowd the type. */
-@media (max-width: 640px) {
-  .orbit-upright--outer,
-  .orbit-upright--inner {
-    scale: 0.58;
-  }
+.orbit-upright--outer,
+.orbit-upright--inner {
+  scale: var(--tile-scale);
+}
+
+/* Page vignette: the composition fades out into the paper at the edges rather
+   than being cut off by them. Left off the tiles themselves so each one stays
+   at full strength wherever it is in its orbit. */
+.orbit-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 70% at 50% 50%,
+    rgba(255, 255, 255, 0) 45%,
+    rgba(255, 255, 255, 0.72) 78%,
+    #ffffff 100%
+  );
 }
 
 @keyframes bounce-gentle {

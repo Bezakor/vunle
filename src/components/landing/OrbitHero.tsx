@@ -39,7 +39,7 @@ export default function OrbitHero() {
           transition={{ duration: 1, ease: 'easeOut', delay: 0.28 }}
           className="mt-7 max-w-md text-sm leading-relaxed text-[var(--ink-soft)] md:text-base"
         >
-          An audio journey built for your goal alone.
+          A guided audio journey built for your specific goal.
         </motion.p>
 
         <motion.button

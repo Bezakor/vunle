@@ -19,7 +19,7 @@ export const manifesto: ManifestoBeat[] = [
       "Your brain can't tell the difference",
       'between a real memory…',
       'and an imagined one.',
-      "Some of the world's most successful athletes, entrepreneurs, artists, and creatives know this…",
+      "Some of the world's most successful athletes, entrepreneurs, and creatives know this…",
     ],
   },
   {

@@ -1,9 +1,60 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionTemplate } from 'framer-motion';
+import { useRef, useState } from 'react';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionTemplate,
+  useMotionValueEvent,
+  useReducedMotion,
+} from 'framer-motion';
 import type { ManifestoBeat } from '@/lib/manifesto';
 import ChapterAssets from './ChapterAssets';
+
+/** Seconds between each word lighting up. */
+const WORD_STAGGER = 0.07;
+
+/**
+ * The chapter's closing line, revealed a word at a time once the chapter
+ * arrives. Rendered as inline-block spans so the words still wrap as normal
+ * text; `whitespace-pre` keeps the space that sits inside each span, which an
+ * inline-block would otherwise collapse.
+ */
+function RevealingLine({
+  line,
+  className,
+  revealed,
+  instant,
+}: {
+  line: string;
+  className: string;
+  revealed: boolean;
+  instant: boolean;
+}) {
+  const words = line.split(' ');
+
+  return (
+    <p className={className}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block whitespace-pre"
+          initial={false}
+          animate={{ opacity: revealed || instant ? 1 : 0, y: revealed || instant ? 0 : 6 }}
+          transition={
+            instant
+              ? { duration: 0 }
+              : { duration: 0.34, ease: 'easeOut', delay: revealed ? i * WORD_STAGGER : 0 }
+          }
+        >
+          {i < words.length - 1 ? word + ' ' : word}
+        </motion.span>
+      ))}
+    </p>
+  );
+}
 
 export default function ManifestoSection({
   beat,
@@ -38,6 +89,19 @@ export default function ManifestoSection({
   // clicks through the one on screen.
   const arrowEvents = useTransform(opacity, (v) => (v > 0.6 ? 'auto' : 'none'));
 
+  // The closing line reveals itself once the chapter has actually arrived —
+  // progress 0.5 is its resting position — and resets once the chapter is well
+  // clear of the screen, so it plays again next time rather than only once per
+  // page load. The two thresholds are deliberately far apart: a single one
+  // would flip back and forth while the section hovers around it.
+  const instant = useReducedMotion() ?? false;
+  const [revealed, setRevealed] = useState(false);
+
+  useMotionValueEvent(smooth, 'change', (v) => {
+    const distance = Math.abs(v - 0.5);
+    setRevealed((prev) => (distance < 0.14 ? true : distance > 0.34 ? false : prev));
+  });
+
   // Walks to the next snap point in document order rather than looking up an
   // id, so each chapter finds its neighbour without every chapter needing a
   // name — and the chapter before the carousel correctly lands on it.
@@ -63,13 +127,24 @@ export default function ManifestoSection({
           const accent = isClosing || beat.accentLines?.includes(i);
           const spaced = isClosing || beat.gapAfter?.includes(i - 1);
 
+          const classes = `text-xl leading-relaxed tracking-tight text-balance md:text-3xl ${
+            spaced ? 'mt-6 md:mt-10' : ''
+          } ${accent ? 'text-[var(--ink)]' : 'text-[var(--ink-soft)]'}`;
+
+          if (isClosing) {
+            return (
+              <RevealingLine
+                key={i}
+                line={line}
+                className={classes}
+                revealed={revealed}
+                instant={instant}
+              />
+            );
+          }
+
           return (
-            <p
-              key={i}
-              className={`text-xl leading-relaxed tracking-tight text-balance md:text-3xl ${
-                spaced ? 'mt-6 md:mt-10' : ''
-              } ${accent ? 'text-[var(--ink)]' : 'text-[var(--ink-soft)]'}`}
-            >
+            <p key={i} className={classes}>
               {line}
             </p>
           );

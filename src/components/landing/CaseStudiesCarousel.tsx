@@ -31,11 +31,14 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
 
   if (!study.avatar || failed) {
     return (
+      // The em box has to sit on an element at the card's own font size: `width`
+      // in em resolves against the element's own font-size, so scaling the
+      // initials on this div would scale the disc with them.
       <div
-        className="flex h-[10em] w-[10em] shrink-0 items-center justify-center rounded-full text-[1.5em] font-medium text-white"
+        className="flex h-[10em] w-[10em] shrink-0 items-center justify-center rounded-full font-medium text-white"
         style={{ background: gradient }}
       >
-        {study.initials}
+        <span className="text-[1.5em]">{study.initials}</span>
       </div>
     );
   }

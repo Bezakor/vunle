@@ -106,17 +106,19 @@ export default function OrbitHero() {
           An audio journey built for your goal alone.
         </motion.p>
 
-        <motion.div
+        <motion.button
+          type="button"
+          onClick={() => document.getElementById('manifesto-start')?.scrollIntoView({ behavior: 'smooth' })}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.1 }}
-          className="mt-14 flex flex-col items-center gap-2 text-[var(--ink-faint)]"
+          className="mt-14 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
         >
           <span className="text-[10px] uppercase tracking-[0.28em]">Here&apos;s something surprising:</span>
           <span aria-hidden className="animate-bounce-gentle text-xs">
             ↓
           </span>
-        </motion.div>
+        </motion.button>
       </div>
     </section>
   );

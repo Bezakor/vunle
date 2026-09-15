@@ -32,7 +32,13 @@ export default function Home() {
               key={beat.id}
               beat={beat}
               index={i}
-              id={i === manifestoBeforeCaseStudies.length - 1 ? 'manifesto-before-cases' : undefined}
+              id={
+                i === 0
+                  ? 'manifesto-start'
+                  : i === manifestoBeforeCaseStudies.length - 1
+                    ? 'manifesto-before-cases'
+                    : undefined
+              }
             />
           ))}
         </section>

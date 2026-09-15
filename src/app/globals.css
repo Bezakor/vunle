@@ -262,9 +262,11 @@ body {
   );
 }
 
+/* Motion only — no opacity pulse, so the arrow stays solid ink rather than
+   dipping to grey on every cycle. */
 @keyframes bounce-gentle {
-  0%, 100% { transform: translateY(0); opacity: 0.55; }
-  50% { transform: translateY(6px); opacity: 1; }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
 }
 
 .animate-bounce-gentle {

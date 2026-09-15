@@ -17,7 +17,7 @@ export interface CaseStudy {
 export const caseStudies: CaseStudy[] = [
   {
     id: 'jordan',
-    avatar: '/case-studies/jordan.jpg',
+    avatar: '/case-studies/profile_01-MJ-michael-jordan.jpg',
     name: 'Michael Jordan',
     title: 'NBA Hall-of-Fame Athlete',
     initials: 'MJ',
@@ -29,7 +29,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'gaga',
-    avatar: '/case-studies/gaga.jpg',
+    avatar: '/case-studies/profile_02-LG-lady-gaga.jpg',
     name: 'Lady Gaga',
     title: 'Musician, Artist',
     initials: 'LG',
@@ -40,7 +40,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'robbins-tony',
-    avatar: '/case-studies/robbins-tony.jpg',
+    avatar: '/case-studies/profile_03-TR-tony-robbins.jpg',
     name: 'Tony Robbins',
     title: 'Speaker, Philanthropist',
     initials: 'TR',
@@ -51,7 +51,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'robbins-mel',
-    avatar: '/case-studies/robbins-mel.jpg',
+    avatar: '/case-studies/profile_04-MR-mel-robbins.jpg',
     name: 'Mel Robbins',
     title: 'Author, Host',
     initials: 'MR',
@@ -63,7 +63,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'dispenza',
-    avatar: '/case-studies/dispenza.jpg',
+    avatar: '/case-studies/profile_05-JD-joe-dispenza.jpg',
     name: 'Dr. Joe Dispenza',
     title: 'Neuroscientist, Author',
     initials: 'JD',

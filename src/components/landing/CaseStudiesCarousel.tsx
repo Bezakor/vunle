@@ -32,7 +32,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
   if (!study.avatar || failed) {
     return (
       <div
-        className="flex h-20 w-20 items-center justify-center rounded-full text-lg font-medium text-white"
+        className="flex h-28 w-28 items-center justify-center rounded-full text-2xl font-medium text-white"
         style={{ background: gradient }}
       >
         {study.initials}
@@ -45,11 +45,11 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
     <img
       src={study.avatar}
       alt={study.name}
-      width={80}
-      height={80}
+      width={112}
+      height={112}
       loading="lazy"
       onError={() => setFailed(true)}
-      className="h-20 w-20 rounded-full object-cover"
+      className="h-28 w-28 rounded-full object-cover"
       style={{ background: gradient }}
     />
   );

@@ -1,19 +1,19 @@
 # Case study portraits
 
-One square portrait per case study, named after that study's `id` in
-`src/lib/caseStudies.ts`:
+One square portrait per case study. Each study's `avatar` field in
+`src/lib/caseStudies.ts` points at its file:
 
-| File               | Person           |
-| ------------------ | ---------------- |
-| `jordan.jpg`       | Michael Jordan   |
-| `gaga.jpg`         | Lady Gaga        |
-| `robbins-tony.jpg` | Tony Robbins     |
-| `robbins-mel.jpg`  | Mel Robbins      |
-| `dispenza.jpg`     | Dr. Joe Dispenza |
+| File                              | Person           |
+| --------------------------------- | ---------------- |
+| `profile_01-MJ-michael-jordan.jpg`| Michael Jordan   |
+| `profile_02-LG-lady-gaga.jpg`     | Lady Gaga        |
+| `profile_03-TR-tony-robbins.jpg`  | Tony Robbins     |
+| `profile_04-MR-mel-robbins.jpg`   | Mel Robbins      |
+| `profile_05-JD-joe-dispenza.jpg`  | Dr. Joe Dispenza |
 
 The carousel renders them at 80px as a circle with `object-fit: cover`, so
-square images around 400x400 are ideal and anything square will crop sensibly.
+square images crop cleanly — these are 842x842.
 
-Any portrait that is missing or fails to load falls back to the person's
-initials on a gradient disc, so the carousel never shows a broken image — which
-is what it does today, until these files are added.
+Renaming a file means updating that study's `avatar` path too. Any portrait
+that is missing or fails to load falls back to the person's initials on a
+gradient disc, so the carousel never shows a broken image.

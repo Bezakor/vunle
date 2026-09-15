@@ -112,7 +112,7 @@ export default function CaseStudiesCarousel() {
         <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
           <div
             className="absolute inset-0"
-            style={{ background: 'radial-gradient(circle at 50% 40%, #2a2145, #120f1e 70%)' }}
+            style={{ background: 'radial-gradient(circle at 50% 35%, #f6f6f8, #ffffff 70%)' }}
           />
           {!reduceMotion && (
             <iframe
@@ -131,13 +131,13 @@ export default function CaseStudiesCarousel() {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(to bottom, rgba(18,15,30,0.92), rgba(18,15,30,0.72) 35%, rgba(18,15,30,0.72) 65%, rgba(18,15,30,0.95))',
+                'linear-gradient(to bottom, rgba(255,255,255,0.97), rgba(255,255,255,0.86) 35%, rgba(255,255,255,0.86) 65%, rgba(255,255,255,0.98))',
             }}
           />
           <div className="absolute inset-0 backdrop-blur-[2px]" />
         </div>
 
-        <p className="mb-8 text-xs uppercase tracking-[0.3em] text-[var(--dream-muted)]">Case studies</p>
+        <p className="eyebrow mb-8">Case studies</p>
 
         <div className="relative w-full max-w-xl">
           <button
@@ -157,7 +157,7 @@ export default function CaseStudiesCarousel() {
                 animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, x: -offset * state.direction, filter: 'blur(8px)' }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="waitlist-glass absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-8 text-center md:p-10"
+                className="paper-card absolute inset-0 flex flex-col items-center justify-center rounded-2xl p-8 text-center md:p-10"
               >
                 <div
                   className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-medium text-white"
@@ -166,14 +166,14 @@ export default function CaseStudiesCarousel() {
                   {study.initials}
                 </div>
 
-                <p className="mt-6 line-clamp-5 font-serif text-2xl italic leading-snug text-balance">
+                <p className="mt-6 line-clamp-5 text-lg leading-relaxed tracking-tight text-balance text-[var(--ink)] md:text-xl">
                   {study.isQuote ? `“${study.headline}”` : study.headline}
                 </p>
 
-                <p className="mt-6 text-sm font-medium">{study.name}</p>
-                <p className="text-xs text-[var(--dream-muted)]">{study.title}</p>
+                <p className="mt-6 text-sm font-medium text-[var(--ink)]">{study.name}</p>
+                <p className="mt-1 text-[11px] tracking-wide text-[var(--ink-faint)]">{study.title}</p>
 
-                <p className="mt-6 line-clamp-3 text-sm leading-relaxed text-[var(--dream-muted)]">
+                <p className="mt-6 line-clamp-3 text-xs leading-relaxed text-[var(--ink-soft)]">
                   {study.description}
                 </p>
               </motion.div>
@@ -200,7 +200,7 @@ export default function CaseStudiesCarousel() {
               className="h-1.5 rounded-full transition-all"
               style={{
                 width: i === state.index ? '20px' : '6px',
-                background: i === state.index ? 'var(--dream-primary)' : 'rgba(168, 156, 196, 0.35)',
+                background: i === state.index ? 'var(--ink)' : 'rgba(17, 17, 17, 0.2)',
               }}
             />
           ))}
@@ -209,7 +209,7 @@ export default function CaseStudiesCarousel() {
         <button
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
-          className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--dream-muted)] opacity-40 transition-opacity hover:opacity-80"
+          className="mt-6 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
         >
           Skip the case studies
         </button>

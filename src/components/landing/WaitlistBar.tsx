@@ -54,7 +54,7 @@ export default function WaitlistBar() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.4 }}
-          className="waitlist-glass rounded-full p-2"
+          className="paper-card rounded-full p-2"
         >
           <AnimatePresence mode="wait" initial={false}>
             {status === 'success' ? (
@@ -66,8 +66,8 @@ export default function WaitlistBar() {
                 transition={{ duration: 0.6 }}
                 className="flex items-center justify-center gap-2 px-4 py-3 text-center"
               >
-                <span className="font-serif italic text-lg text-[var(--accent)]">
-                  You&rsquo;re on the list ✦ we&rsquo;ll be in touch
+                <span className="text-sm text-[var(--ink)]">
+                  You&rsquo;re on the list — we&rsquo;ll be in touch
                 </span>
               </motion.div>
             ) : (
@@ -87,14 +87,14 @@ export default function WaitlistBar() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="min-w-0 flex-1 rounded-full bg-transparent px-5 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:outline-none md:text-base"
+                  className="min-w-0 flex-1 rounded-full bg-transparent px-5 py-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none"
                 />
                 <motion.button
                   type="submit"
                   disabled={status === 'loading'}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="shrink-0 rounded-full bg-[var(--primary)] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-60 md:px-6 md:text-base"
+                  className="shrink-0 rounded-full bg-[var(--ink)] px-6 py-3 text-xs font-medium tracking-wide text-white transition-colors hover:bg-black disabled:opacity-60"
                 >
                   {status === 'loading' ? 'Joining…' : 'Join the waitlist'}
                 </motion.button>
@@ -108,7 +108,7 @@ export default function WaitlistBar() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mt-2 text-center text-xs text-rose-300"
+              className="mt-2 text-center text-xs text-rose-600"
             >
               {errorMessage}
             </motion.p>

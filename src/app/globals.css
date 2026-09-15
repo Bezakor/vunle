@@ -1,28 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary: #1e1e2e;
-  --accent: #818cf8;
-  --muted: #6b7280;
+  /* Monochrome paper palette. Emphasis comes from ink weight, not hue. */
+  --paper: #ffffff;
+  --ink: #111111;
+  --ink-soft: #6f6f6f;
+  --ink-faint: #9b9b9b;
+  --line: rgba(17, 17, 17, 0.1);
+  --line-strong: rgba(17, 17, 17, 0.22);
 
-  /* dreamy landing page palette */
-  --dream-bg: #120f1e;
-  --dream-fg: #f3eefc;
-  --dream-muted: #a89cc4;
-  --dream-primary: #b7a5ff;
-  --dream-primary-hover: #cbb9ff;
+  /* Kept for the app flow screens, which still reference these. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --primary: #111111;
+  --primary-hover: #000000;
+  --secondary: #f4f4f4;
+  --accent: #111111;
+  --muted: var(--ink-faint);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manifesto-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
-  --font-serif: var(--font-manifesto-serif), Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @layer base {
@@ -36,8 +37,8 @@
 html,
 body {
   max-width: 100vw;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 /* No CSS scroll-snap and no `scroll-behavior: smooth` here, both deliberate.
@@ -48,98 +49,51 @@ body {
    Native scrolling is left completely free, and SectionSnap eases to the
    nearest section once the user stops — see ScrollSnapController. */
 
+::selection {
+  background: rgba(17, 17, 17, 0.12);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
-  border-radius: 3px;
+  background: rgba(17, 17, 17, 0.18);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: rgba(17, 17, 17, 0.32);
 }
 
 *:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* --- shared surfaces --- */
+
+.paper-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 18px 40px rgba(17, 17, 17, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.glass {
-  background: rgba(30, 30, 46, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--ink-faint);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-gradient-bg {
-  background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-@keyframes loading-dots {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.loading-dot {
-  animation: loading-dots 1.4s infinite;
-}
-
-.loading-dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loading-dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-/* --- dreamy landing page --- */
-
-.dream-page {
-  background: var(--dream-bg);
-  color: var(--dream-fg);
-}
-
-/* Carousel arrows: a dark translucent disc so the light chevron inside always
-   reads against it, whatever the card or background behind it happens to be. */
+/* Carousel arrows: a pale disc with a hairline edge, so the dark chevron
+   inside always reads against it. */
 .carousel-arrow {
   display: flex;
   align-items: center;
@@ -147,19 +101,18 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 9999px;
-  background: rgba(24, 19, 41, 0.85);
-  border: 1px solid rgba(183, 165, 255, 0.35);
-  color: var(--dream-primary);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, scale 0.15s;
+  transition: background-color 0.2s, border-color 0.2s, scale 0.15s;
 }
 
 .carousel-arrow:hover {
-  background: rgba(38, 30, 64, 0.95);
-  border-color: rgba(183, 165, 255, 0.6);
-  color: var(--dream-primary-hover);
+  background: #ffffff;
+  border-color: var(--ink);
 }
 
 /* `scale` (not `transform`) so the Tailwind vertical-centering translate on the
@@ -168,83 +121,111 @@ body {
   scale: 0.94;
 }
 
-.waitlist-glass {
-  background: rgba(24, 19, 41, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
-}
+/* --- orbit hero --- */
 
-.orb {
+.orbit-stage {
   position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.45;
-  will-change: transform;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.orb-a {
-  width: 42vw;
-  height: 42vw;
-  top: -10%;
-  left: -10%;
-  background: radial-gradient(circle at 30% 30%, #b7a5ff, transparent 70%);
-  animation: drift-a 26s ease-in-out infinite;
-}
-
-.orb-b {
-  width: 36vw;
-  height: 36vw;
-  bottom: -12%;
-  right: -8%;
-  background: radial-gradient(circle at 60% 40%, #ff9ecf, transparent 70%);
-  animation: drift-b 32s ease-in-out infinite;
-}
-
-.orb-c {
-  width: 30vw;
-  height: 30vw;
-  top: 40%;
-  left: 55%;
-  background: radial-gradient(circle at 50% 50%, #8fd9ff, transparent 70%);
-  animation: drift-c 22s ease-in-out infinite;
-}
-
-@keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(6vw, 8vh) scale(1.1); }
-}
-
-@keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-5vw, -6vh) scale(1.08); }
-}
-
-@keyframes drift-c {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-4vw, 5vh) scale(0.95); }
-}
-
-.grain {
+.orbit-ring {
   position: absolute;
-  inset: -20%;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-origin: center;
+}
+
+.orbit-ring--outer {
+  animation: orbit-spin 150s linear infinite;
+}
+
+.orbit-ring--inner {
+  animation: orbit-spin 110s linear infinite reverse;
+}
+
+/* Placed on the circle, then turned back upright. */
+.orbit-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(-1 * var(--angle)));
+}
+
+/* Cancels the parent ring's rotation frame for frame, so a tile orbits the
+   centre without ever tipping over. */
+.orbit-upright--outer,
+.orbit-upright--inner {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+}
+
+.orbit-upright--outer {
+  animation: orbit-spin 150s linear infinite reverse;
+}
+
+.orbit-upright--inner {
+  animation: orbit-spin 110s linear infinite;
+}
+
+.orbit-tile {
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(17, 17, 17, 0.05), 0 22px 45px rgba(17, 17, 17, 0.09);
+}
+
+/* Keeps clear white space around the headline whatever a tile drifts over, so
+   the centre always reads. Sits above the rings, below the text. */
+.orbit-veil {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(1100px, 94vw);
+  height: min(640px, 66vh);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse closest-side,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.93) 42%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* The tiles are sized for a wide viewport; on a phone they'd crowd the type. */
+@media (max-width: 640px) {
+  .orbit-upright--outer,
+  .orbit-upright--inner {
+    scale: 0.58;
+  }
 }
 
 @keyframes bounce-gentle {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(8px); opacity: 1; }
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(6px); opacity: 1; }
 }
 
 .animate-bounce-gentle {
   animation: bounce-gentle 2.4s ease-in-out infinite;
 }
 
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .orb-a, .orb-b, .orb-c, .animate-bounce-gentle {
+  .orbit-ring--outer,
+  .orbit-ring--inner,
+  .orbit-upright--outer,
+  .orbit-upright--inner {
     animation: none;
   }
 }

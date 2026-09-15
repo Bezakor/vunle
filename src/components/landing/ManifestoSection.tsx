@@ -5,9 +5,9 @@ import { motion, useScroll, useTransform, useSpring, useMotionTemplate } from 'f
 import type { ManifestoBeat } from '@/lib/manifesto';
 
 const sizeClasses: Record<NonNullable<ManifestoBeat['size']>, string> = {
-  md: 'text-2xl md:text-4xl',
-  lg: 'text-3xl md:text-5xl',
-  xl: 'text-4xl md:text-6xl',
+  md: 'text-xl md:text-3xl',
+  lg: 'text-2xl md:text-4xl',
+  xl: 'text-3xl md:text-5xl',
 };
 
 export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id?: string }) {
@@ -43,11 +43,9 @@ export default function ManifestoSection({ beat, id }: { beat: ManifestoBeat; id
           return (
             <p
               key={i}
-              className={`${sizeClasses[beat.size ?? 'md']} ${
-                beat.serif ? 'font-serif italic' : 'font-sans'
-              } text-balance leading-snug ${spaced ? 'mt-6 md:mt-10' : ''} ${
-                accent ? 'text-[var(--dream-primary)]' : 'text-[var(--foreground)]'
-              }`}
+              className={`${sizeClasses[beat.size ?? 'md']} text-balance leading-relaxed tracking-tight ${
+                spaced ? 'mt-6 md:mt-10' : ''
+              } ${accent ? 'text-[var(--ink)]' : 'text-[var(--ink-soft)]'}`}
             >
               {line}
             </p>

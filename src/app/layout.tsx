@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-manifesto-sans",
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-manifesto-serif",
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-jetbrains",
   display: "swap",
 });
 
@@ -29,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}>
-        {children}
-      </body>
+      <body className={`${jetbrainsMono.variable} font-mono antialiased`}>{children}</body>
     </html>
   );
 }

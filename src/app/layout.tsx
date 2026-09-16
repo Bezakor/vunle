@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "MindScape - Personalized Guided Meditations",
-  description: "Create custom AI-generated guided visualization meditations tailored to your personal journey",
+  title: "Vunle — Personal goals need personal visualizations",
+  description:
+    "Vunle creates a guided visualization made only for you — your goal, your tone, your timeline, your emotion. Join the waitlist.",
 };
 
 export default function RootLayout({
@@ -13,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">
-        {children}
-      </body>
+      <body className={`${jetbrainsMono.variable} font-mono antialiased`}>{children}</body>
     </html>
   );
 }

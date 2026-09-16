@@ -1,119 +1,459 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary: #1e1e2e;
-  --accent: #818cf8;
-  --muted: #6b7280;
+  /* Monochrome paper palette. Emphasis comes from ink weight, not hue. */
+  --paper: #ffffff;
+  --ink: #111111;
+  --ink-soft: #6f6f6f;
+  --ink-faint: #9b9b9b;
+  --line: rgba(17, 17, 17, 0.1);
+  --line-strong: rgba(17, 17, 17, 0.22);
+
+  /* Kept for the app flow screens, which still reference these. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --primary: #111111;
+  --primary-hover: #000000;
+  --secondary: #f4f4f4;
+  --accent: #111111;
+  --muted: var(--ink-faint);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 }
 
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--ink);
 }
 
-html {
-  scroll-behavior: smooth;
+/* No CSS scroll-snap and no `scroll-behavior: smooth` here, both deliberate.
+   `scroll-snap-type: y mandatory` re-snaps each small scroll delta back to the
+   current section, which leaves ordinary mouse-wheel ticks and trackpad
+   scrolling unable to advance at all; and `scroll-behavior: smooth` makes the
+   browser animate every programmatic scroll, fighting our own easing.
+   Native scrolling is left completely free, and SectionSnap eases to the
+   nearest section once the user stops — see ScrollSnapController. */
+
+::selection {
+  background: rgba(17, 17, 17, 0.12);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
-  border-radius: 3px;
+  background: rgba(17, 17, 17, 0.18);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: rgba(17, 17, 17, 0.32);
 }
 
 *:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* --- shared surfaces --- */
+
+.paper-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 18px 40px rgba(17, 17, 17, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.glass {
-  background: rgba(30, 30, 46, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--ink-faint);
 }
 
-@keyframes float {
+/* Carousel arrows: a pale disc with a hairline edge, so the dark chevron
+   inside always reads against it. */
+.carousel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, scale 0.15s;
+}
+
+.carousel-arrow:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+}
+
+/* `scale` (not `transform`) so the Tailwind vertical-centering translate on the
+   button is left untouched — otherwise the arrow jumps on click. */
+.carousel-arrow:active {
+  scale: 0.94;
+}
+
+/* --- case studies backdrop --- */
+
+/* The white wash over the background video. Kept just short of opaque so the
+   footage still reads as a soft texture and the dot grid has something to sit
+   against; take it to 1 and both disappear. */
+.cs-scrim {
+  background: rgba(255, 255, 255, var(--cs-scrim, 0.88));
+}
+
+/* Grid of white dots over the scrim. They show up where the footage behind is
+   darker, so the pattern breathes with the video rather than sitting flat. */
+.dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.95) 1.4px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+
+/* The case study card window. The chrome around it — eyebrow, dots, skip link
+   and arrow, plus the pinned section's own padding — is a fixed height, so what
+   is left for the card is the viewport minus a constant rather than a fraction
+   of it. A fixed height here pushed the eyebrow off the top of a 720px laptop
+   screen. The avatar is capped against viewport height for the same reason. */
+.cs-window {
+  /* 22.5rem is the measured height of everything else in the pinned area on a
+     tall screen — its padding, the eyebrow, the dots, the skip link and the
+     arrow. The short-screen value below is the same measurement once that
+     chrome has been trimmed. */
+  height: clamp(15rem, calc(100vh - var(--cs-chrome, 22.5rem)), 38rem);
+}
+
+/* Everything inside a card is sized in em against this, so the whole
+   composition scales as one rather than the box shrinking around fixed-size
+   contents. Capped on viewport width too, or a tall narrow phone would pick a
+   size meant for a desktop. */
+.cs-card-scale {
+  font-size: min(clamp(10px, 1.52vh, 16px), 3.2vw, 16px);
+}
+
+/* A short window — a 1366x768 or 1280x720 laptop, which is most laptops once
+   browser chrome is taken off — has to give the card its room back. The chrome
+   around it is a fixed height, so on a 720px screen it was taking more than
+   half of what was available and pushing the eyebrow off the top. */
+@media (max-height: 820px) {
+  .cs-pin {
+    --cs-chrome: 16rem;
+    padding-top: 1.25rem;
+  }
+
+  .cs-pin .eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  /* The arrow directly below does the same job, so the worded link is the
+     first thing to go when height is scarce. */
+  .cs-skip-link {
+    display: none;
+  }
+}
+
+/* --- chapter orbit --- */
+
+/* The chapter rings are elliptical, not circular. A circle wide enough to clear
+   the text — which runs to 48rem — would stand taller than the chapter itself
+   and be cut off top and bottom, so the ring is squashed vertically by --squash
+   and each tile is stretched back by its inverse. The assets travel an oval;
+   the tiles themselves stay perfectly round. */
+.chapter-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  --r-chapter: clamp(320px, 36vw, 540px);
+  --squash: 0.6;
+  --chapter-tile: 1;
+
+  /* A hole punched in the middle of the asset layer, sized to the text. On a
+     phone the words run nearly edge to edge, so no orbit — however wide — can
+     get round them; instead the assets fade out as they cross the centre and
+     come back up at the periphery. It doubles as polish on wider screens. */
+  --clear-w: 34%;
+  --clear-h: 24%;
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--clear-w) var(--clear-h) at 50% 50%,
+    transparent 0%,
+    transparent 48%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse var(--clear-w) var(--clear-h) at 50% 50%,
+    transparent 0%,
+    transparent 48%,
+    #000 100%
+  );
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .chapter-stage {
+    --r-chapter: clamp(260px, 44vw, 390px);
+    --squash: 0.68;
+    --chapter-tile: 0.76;
+    --clear-w: 48%;
+    --clear-h: 26%;
+  }
+}
+
+/* Phone. The text is close to full width here, so the ring is pushed out and
+   the tiles shrunk right down to leave the words a clear centre. */
+@media (max-width: 640px) {
+  .chapter-stage {
+    --r-chapter: clamp(200px, 56vw, 280px);
+    --squash: 0.8;
+    --chapter-tile: 0.5;
+    --clear-w: 92%;
+    --clear-h: 44%;
+  }
+}
+
+.chapter-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: scaleY(var(--squash));
+}
+
+/* Direction is set per chapter so successive chapters turn opposite ways. The
+   upright wrapper always runs the opposite way to the ring, cancelling it frame
+   for frame so a tile orbits without ever tipping over. */
+.chapter-spin {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+  animation: orbit-spin var(--orbit-dur, 150s) linear infinite;
+  animation-direction: var(--orbit-dir, normal);
+}
+
+.chapter-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(var(--angle)) translate(calc(var(--r-chapter) * var(--r)))
+    rotate(calc(-1 * var(--angle)));
+}
+
+.chapter-upright {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+  animation: orbit-spin var(--orbit-dur, 150s) linear infinite;
+  animation-direction: var(--orbit-dir-rev, reverse);
+}
+
+/* Undoes the ring's vertical squash. Everything between the two cancels out to
+   no net rotation, so this leaves the tile undistorted. */
+.chapter-unsquash {
+  width: 0;
+  height: 0;
+  transform: scaleY(calc(1 / var(--squash)));
+  scale: var(--chapter-tile);
+}
+
+/* --- orbit hero --- */
+
+.orbit-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* Ring radii and tile scale live here so the breakpoints below can retune the
+     whole composition in one place. Desktop: the outer ring sits well clear of
+     the inner one rather than crowding it. */
+  --r-outer: clamp(380px, 46vw, 820px);
+  --r-inner: clamp(240px, 31vw, 470px);
+  --tile-scale: 1;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .orbit-stage {
+    --r-outer: clamp(340px, 58vw, 620px);
+    --r-inner: clamp(245px, 34vw, 350px);
+    --tile-scale: 0.72;
+  }
+}
+
+/* Phone. The headline is close to full width here, so the inner ring has to be
+   pushed right out to the edges to leave the type a clear centre. */
+@media (max-width: 640px) {
+  .orbit-stage {
+    --r-outer: clamp(280px, 80vw, 380px);
+    --r-inner: clamp(200px, 52vw, 260px);
+    --tile-scale: 0.44;
+  }
+}
+
+.orbit-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-origin: center;
+}
+
+.orbit-ring--outer {
+  animation: orbit-spin 150s linear infinite;
+}
+
+.orbit-ring--inner {
+  animation: orbit-spin 110s linear infinite reverse;
+}
+
+/* Placed on the circle, then turned back upright. `--r` nudges an individual
+   tile off the exact circle so the rings read as a scatter. */
+.orbit-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(var(--angle)) translate(calc(var(--base) * var(--r) * var(--spread, 1)))
+    rotate(calc(-1 * var(--angle)));
+}
+
+.orbit-ring--outer .orbit-slot {
+  --base: var(--r-outer);
+}
+
+.orbit-ring--inner .orbit-slot {
+  --base: var(--r-inner);
+}
+
+/* Cancels the parent ring's rotation frame for frame, so a tile orbits the
+   centre without ever tipping over. */
+.orbit-upright--outer,
+.orbit-upright--inner {
+  width: 0;
+  height: 0;
+  transform-origin: center;
+}
+
+.orbit-upright--outer {
+  animation: orbit-spin 150s linear infinite reverse;
+}
+
+.orbit-upright--inner {
+  animation: orbit-spin 110s linear infinite;
+}
+
+/* A container, not a decoration: drop an <img> or <video> in and it fills the
+   frame. The gradient is only the placeholder until real media arrives. */
+.orbit-tile {
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(17, 17, 17, 0.05), 0 22px 45px rgba(17, 17, 17, 0.09);
+}
+
+.orbit-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Centres an asset on its orbit slot. The tilt is applied through the separate
+   `rotate` property, which composes with this rather than overwriting it. */
+.orbit-tile--centred {
+  transform: translate(-50%, -50%);
+}
+
+/* The chapter equivalent of the hero vignette: assets drifting past the text
+   dissolve into the paper at the edges instead of being clipped by them. */
+.chapter-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 82% 78% at 50% 50%,
+    rgba(255, 255, 255, 0) 55%,
+    rgba(255, 255, 255, 0.55) 82%,
+    #ffffff 100%
+  );
+}
+
+.orbit-upright--outer,
+.orbit-upright--inner {
+  scale: var(--tile-scale);
+}
+
+/* Page vignette: the composition fades out into the paper at the edges rather
+   than being cut off by them. Left off the tiles themselves so each one stays
+   at full strength wherever it is in its orbit. */
+.orbit-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 70% at 50% 50%,
+    rgba(255, 255, 255, 0) 45%,
+    rgba(255, 255, 255, 0.72) 78%,
+    #ffffff 100%
+  );
+}
+
+/* Motion only — no opacity pulse, so the arrow stays solid ink rather than
+   dipping to grey on every cycle. */
+@keyframes bounce-gentle {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(6px); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+.animate-bounce-gentle {
+  animation: bounce-gentle 2.4s ease-in-out infinite;
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-gradient-bg {
-  background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-@keyframes loading-dots {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.loading-dot {
-  animation: loading-dots 1.4s infinite;
-}
-
-.loading-dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loading-dot:nth-child(3) {
-  animation-delay: 0.4s;
+@media (prefers-reduced-motion: reduce) {
+  .orbit-ring--outer,
+  .orbit-ring--inner,
+  .orbit-upright--outer,
+  .orbit-upright--inner,
+  .chapter-spin,
+  .chapter-upright {
+    animation: none;
+  }
 }

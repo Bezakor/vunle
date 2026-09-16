@@ -180,7 +180,15 @@ export default function CaseStudiesCarousel() {
           <div className="dot-grid absolute inset-0" />
         </div>
 
-        <p className="eyebrow mb-8">Case studies</p>
+        <p className="eyebrow mb-8 flex items-center justify-center gap-3">
+          <span>Case studies</span>
+          <span aria-hidden className="text-[var(--line-strong)]">/</span>
+          {/* Announced politely rather than on every scroll tick, so a screen
+              reader hears the card it landed on, not each one passed. */}
+          <span aria-live="polite">
+            {state.index + 1} of {N}
+          </span>
+        </p>
 
         <div className="relative w-full max-w-xl">
           <button

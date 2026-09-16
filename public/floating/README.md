@@ -1,50 +1,35 @@
 # Floating assets
 
-The 21 tiles that orbit the hero, drift through the manifesto chapters, and
-burst out of the closing section. One shared pool — the same file is reused
-in all three places, so there is one set to make, not three.
+The tiles that orbit the hero, drift through the manifesto chapters, and burst
+out of the closing section. One shared pool — the same file is reused in all
+three places, so there is one set to make, not three.
 
-Drop a file in beside this README using the exact name below. Anything not
-there yet falls back to its placeholder gradient, so you can add them a few
-at a time and the page never shows a broken image.
+## Just put the files here
 
-| File | Shape | Ring |
-| --- | --- | --- |
-| `asset-01-3x4.jpg` | 3:4 | outer |
-| `asset-02-1x1.jpg` | 1:1 | outer |
-| `asset-03-4x5.jpg` | 4:5 | outer |
-| `asset-04-1x1.jpg` | 1:1 | outer |
-| `asset-05-3x4.jpg` | 3:4 | outer |
-| `asset-06-1x1.jpg` | 1:1 | outer |
-| `asset-07-3x4.jpg` | 3:4 | outer |
-| `asset-08-4x5.jpg` | 4:5 | outer |
-| `asset-09-3x4.jpg` | 3:4 | outer |
-| `asset-10-1x1.jpg` | 1:1 | outer |
-| `asset-11-3x4.jpg` | 3:4 | outer |
-| `asset-12-4x5.jpg` | 4:5 | outer |
-| `asset-13-3x4.jpg` | 3:4 | outer |
-| `asset-14-3x4.jpg` | 3:4 | inner |
-| `asset-15-1x1.jpg` | 1:1 | inner |
-| `asset-16-4x5.jpg` | 4:5 | inner |
-| `asset-17-1x1.jpg` | 1:1 | inner |
-| `asset-18-3x4.jpg` | 3:4 | inner |
-| `asset-19-1x1.jpg` | 1:1 | inner |
-| `asset-20-3x4.jpg` | 3:4 | inner |
-| `asset-21-4x5.jpg` | 4:5 | inner |
+Drop them in this folder. Names don't matter and neither does the mix: `.jpg`,
+`.png`, `.webp`, `.avif`, `.gif` are treated as images, and `.webm`, `.mp4`,
+`.mov`, `.m4v`, `.ogv` as video. `scripts/generate-floating-manifest.mjs` scans
+this folder and wires up whatever it finds, and it runs automatically before
+`npm run dev` and `npm run build`, so a deploy after uploading picks them up.
+To regenerate by hand: `npm run assets`.
+
+Files fill the tiles in filename order, sorted naturally — `asset-2` comes
+before `asset-10`, not after. Number the files if you care which goes where.
+
+There are **21 tiles**. Fewer files than that is fine: the rest keep their
+placeholder gradient, so the pool can be filled a few at a time. More than 21
+and the extras go unused.
+
+Tile shapes are 3:4, 1:1 and 4:5, but they are a property of the frame rather
+than of your files — each tile crops whatever it is given to its own shape,
+centred. Square or portrait sources crop most predictably.
 
 ## Size
 
-The largest a tile is ever drawn is 162px on its longest side, and it does
-not grow past that even on a very large display. **512px on the longest side**
+The largest a tile is ever drawn is 162px on its longest side, and it does not
+grow past that even on a very large display. **512px on the longest side**
 covers a 3x retina screen; beyond that is wasted bytes on a thumbnail.
 
-Keep to the shape in the table — the frame crops to it.
-
-## Video
-
-A tile takes video as happily as an image, but the entry needs telling. Name
-the file `.mp4` and add `kind: 'video'` to that asset in `src/lib/assets.ts`,
-alongside its `src`. Video autoplays muted and loops.
-
-At this size detail is lost, so movement and colour read far better than
-content. Short, quiet, slow clips work best.
+Video autoplays muted and loops. At this size detail is lost, so movement and
+colour read far better than content — short, slow, quiet clips work best, and
+keep the files small since several play at once.

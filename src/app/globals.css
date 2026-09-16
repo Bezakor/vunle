@@ -75,6 +75,17 @@ body {
   outline-offset: 3px;
 }
 
+/* The wordmark set inline in a sentence. Sized to the cap height of the type
+   around it rather than to a fixed pixel size, so it tracks the chapter type at
+   every breakpoint, and nudged down to sit on the baseline with the letters. */
+.inline-wordmark {
+  display: inline-block;
+  height: 0.78em;
+  width: auto;
+  vertical-align: baseline;
+  transform: translateY(0.08em);
+}
+
 /* --- site logo --- */
 
 /* Fixed, so it stays in the corner through the whole scroll story. Above the

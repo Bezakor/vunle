@@ -1,7 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { howItWorks } from '@/lib/manifesto';
+import { STEP_MEDIA } from '@/lib/stepsManifest';
 import { scrollToElement } from '@/lib/smoothScroll';
 
 /**
@@ -33,7 +35,55 @@ const ICONS = [
   </svg>,
 ];
 
+/**
+ * The mark at the top of a step: its clip from public/steps if there is one,
+ * otherwise the line-drawn icon. The icon is also the fallback if a clip fails
+ * to load, so a step is never left with a blank space above it.
+ *
+ * The clip replaces the icon rather than sitting above it — showing an
+ * animation of a step and a drawing of the same step together reads as a
+ * duplicate rather than a pair.
+ */
+function StepMark({ index, still }: { index: number; still: boolean }) {
+  const [failed, setFailed] = useState(false);
+  const media = STEP_MEDIA[index];
+
+  if (!media || failed) {
+    return (
+      <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
+        {ICONS[index]}
+      </span>
+    );
+  }
+
+  if (media.kind === 'image') {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={media.src} alt="" aria-hidden className="step-mark" onError={() => setFailed(true)} />
+    );
+  }
+
+  return (
+    <video
+      className="step-mark"
+      src={media.src}
+      // Decorative, so it stays silent and out of the tab order. Paused under
+      // reduced motion, where it shows its first frame instead of looping.
+      autoPlay={!still}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-hidden
+      tabIndex={-1}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function HowItWorks() {
+  const still = useReducedMotion() ?? false;
+
   // Walks to the next snap point in document order, the same way the chapter
   // arrows do, so this section finds the closing call to action without needing
   // to name it.
@@ -47,7 +97,10 @@ export default function HowItWorks() {
   return (
     <section
       data-snap=""
-      className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24"
+      // The arrow sits at a fixed offset from the bottom, so its band is reserved
+      // here rather than left for the content to grow into — which is what the
+      // step clips did, putting the caption straight through it.
+      className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-24 pb-56"
     >
       <div className="grid w-full max-w-4xl gap-5 md:grid-cols-3">
         {howItWorks.map((item, i) => (
@@ -59,9 +112,7 @@ export default function HowItWorks() {
             transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.12 }}
             className="paper-card rounded-2xl p-8 text-center"
           >
-            <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
-              {ICONS[i]}
-            </span>
+            <StepMark index={i} still={still} />
             <span className="mt-5 block text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
             <h3 className="mt-3 text-base font-medium">{item.title}</h3>
             <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>

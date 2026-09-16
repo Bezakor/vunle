@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { caseStudies, type CaseStudy } from '@/lib/caseStudies';
+import { scrollToId, scrollToY } from '@/lib/smoothScroll';
 
 const AVATAR_GRADIENTS = [
   'radial-gradient(circle at 30% 30%, #b7a5ff, #4b3f7a 75%)',
@@ -98,11 +99,11 @@ export default function CaseStudiesCarousel() {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const top = wrapper.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
+    scrollToY(top + i * window.innerHeight);
   }, []);
 
   const scrollToSection = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId(id);
   }, []);
 
   // The arrows stay available on the first and last cards: instead of dead-ending,
@@ -138,8 +139,16 @@ export default function CaseStudiesCarousel() {
   // stuck on whoever it started with.
   const namesRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const active = namesRef.current?.querySelector('[aria-current="true"]');
-    active?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    // Scrolled by hand rather than with scrollIntoView: on a name that is
+    // partly out of view vertically, scrollIntoView moves the page as well as
+    // the row, which would fight the jump that just started.
+    const row = namesRef.current;
+    const active = row?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!row || !active) return;
+    row.scrollTo({
+      left: active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2,
+      behavior: 'smooth',
+    });
   }, [state.index]);
 
   const study = caseStudies[state.index];

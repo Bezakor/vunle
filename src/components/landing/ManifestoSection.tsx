@@ -12,6 +12,7 @@ import {
 } from 'framer-motion';
 import type { ManifestoBeat } from '@/lib/manifesto';
 import ChapterAssets from './ChapterAssets';
+import { scrollToElement } from '@/lib/smoothScroll';
 
 /** Seconds between each word lighting up. */
 const WORD_STAGGER = 0.11;
@@ -125,7 +126,7 @@ export default function ManifestoSection({
     const el = ref.current;
     if (!el) return;
     const points = Array.from(document.querySelectorAll('[data-snap]'));
-    points[points.indexOf(el) + 1]?.scrollIntoView({ behavior: 'smooth' });
+    scrollToElement(points[points.indexOf(el) + 1]);
   };
 
   return (

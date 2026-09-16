@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { howItWorks } from '@/lib/manifesto';
+import { scrollToElement } from '@/lib/smoothScroll';
 
 /**
  * Three simple line marks, drawn to match the mono/hairline feel of the rest of
@@ -40,7 +41,7 @@ export default function HowItWorks() {
     const section = e.currentTarget.closest('[data-snap]');
     if (!section) return;
     const points = Array.from(document.querySelectorAll('[data-snap]'));
-    points[points.indexOf(section) + 1]?.scrollIntoView({ behavior: 'smooth' });
+    scrollToElement(points[points.indexOf(section) + 1]);
   };
 
   return (

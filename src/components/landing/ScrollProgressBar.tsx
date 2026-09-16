@@ -3,6 +3,7 @@
 import type { RefObject } from 'react';
 import { useCallback } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { scrollToY } from '@/lib/smoothScroll';
 
 export default function ScrollProgressBar({ targetRef }: { targetRef: RefObject<HTMLElement | null> }) {
   const { scrollYProgress } = useScroll({ target: targetRef, offset: ['start start', 'end end'] });
@@ -22,7 +23,7 @@ export default function ScrollProgressBar({ targetRef }: { targetRef: RefObject<
       const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       const journeyRect = journey.getBoundingClientRect();
       const top = journeyRect.top + window.scrollY;
-      window.scrollTo({ top: top + fraction * journey.scrollHeight, behavior: 'smooth' });
+      scrollToY(top + fraction * journey.scrollHeight);
     },
     [targetRef]
   );

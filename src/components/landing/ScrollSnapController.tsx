@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { snapHoldRemaining } from '@/lib/smoothScroll';
 
 // Native scrolling is never intercepted here — no preventDefault, no CSS
 // scroll-snap. The page scrolls exactly as the browser intends, and only once
@@ -67,6 +68,16 @@ export default function ScrollSnapController() {
 
     function snapToNearest() {
       if (animating) return;
+
+      // A programmatic jump is in flight. Easing to whatever marker is nearest
+      // right now would drop the visitor mid-journey, on a section they never
+      // asked for — wait for it to arrive instead.
+      const held = snapHoldRemaining();
+      if (held > 0) {
+        if (idleTimer) window.clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(snapToNearest, held + 16);
+        return;
+      }
 
       // The gesture itself is still going — wait for it to finish rather than
       // easing away from where the user is currently scrolling to.

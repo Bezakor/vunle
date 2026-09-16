@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import OrbitField from './OrbitField';
+import { scrollToId } from '@/lib/smoothScroll';
 
 /**
  * The landing hero: the shared orbit field behind a centred headline. The ring
@@ -46,7 +47,7 @@ export default function OrbitHero() {
 
         <motion.button
           type="button"
-          onClick={() => document.getElementById('manifesto-start')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => scrollToId('manifesto-start')}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.1 }}

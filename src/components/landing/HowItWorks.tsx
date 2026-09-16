@@ -99,6 +99,9 @@ export default function HowItWorks() {
   return (
     <section
       data-snap=""
+      // Still a target to land on, but not one the page is pulled out of: see
+      // the free-scroll rule in ScrollSnapController.
+      data-snap-free=""
       // The arrow sits at a fixed offset from the bottom, so its band is reserved
       // here rather than left for the content to grow into — which is what the
       // step clips did, putting the caption straight through it.

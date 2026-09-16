@@ -95,6 +95,24 @@ export default function ScrollSnapController() {
       // decline to act on: it means "where the page is currently at rest", and
       // letting it go stale makes the next scroll measure travel from the wrong
       // origin and ease the wrong way.
+      // A section marked free is read at its own pace: taller than the screen,
+      // so from inside it the nearest snap point is the one after it, and every
+      // pause would pull the reader forward past content they had not reached.
+      // The three steps stack on a phone and run to about twice the viewport,
+      // which is where this showed: a scroll past step two jumped to the end.
+      // Snapping resumes the moment the page leaves the section, so arriving at
+      // it and leaving it both still settle.
+      const insideFree = Array.from(document.querySelectorAll<HTMLElement>('[data-snap-free]')).some(
+        (el) => {
+          const top = el.getBoundingClientRect().top + y;
+          return y > top + 2 && y < top + el.offsetHeight - 2;
+        },
+      );
+      if (insideFree) {
+        restY = y;
+        return;
+      }
+
       if (y <= 2 || y >= maxScroll - 2) {
         restY = y;
         return;

@@ -89,7 +89,7 @@ export default function HowItWorks() {
           type="button"
           onClick={goNext}
           aria-label="Go to the next section"
-          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="arrow-button"
         >
           <span aria-hidden className="animate-bounce-gentle block text-sm">
             ↓

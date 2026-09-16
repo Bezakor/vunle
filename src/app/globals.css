@@ -123,19 +123,68 @@ body {
 
 /* --- case studies backdrop --- */
 
-/* The white wash over the background video. Kept just short of opaque so the
-   footage still reads as a soft texture and the dot grid has something to sit
-   against; take it to 1 and both disappear. */
+/* A light wash over the background video — enough to take the edge off it and
+   let the card sit forward, not enough to hide it. */
 .cs-scrim {
-  background: rgba(255, 255, 255, var(--cs-scrim, 0.88));
+  background: rgba(255, 255, 255, var(--cs-scrim, 0.1));
 }
 
-/* Grid of white dots over the scrim. They show up where the footage behind is
-   darker, so the pattern breathes with the video rather than sitting flat. */
-.dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.95) 1.4px, transparent 1.5px);
-  background-size: 22px 22px;
-  background-position: center;
+/* The name buttons above the cards. Quiet until hovered or current, so the row
+   reads as a line of labels rather than a toolbar. */
+/* One line always, scrolled sideways when it doesn't fit. Wrapping instead put
+   three or four lines of names above the card on a phone, which left the card
+   itself no room. The scrollbar is hidden — the row reads as content, and it
+   fits outright on anything wider than a phone. */
+.cs-names {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cs-names::-webkit-scrollbar {
+  display: none;
+}
+
+/* Everything around the card sits on the video now rather than on paper, so it
+   carries a translucent white backing. Ink on footage is unreadable on a dark
+   shot, and white text would disappear on a bright one — a pale chip works
+   against either. */
+.cs-chip {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.cs-name-btn {
+  flex: none;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--ink-soft);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.cs-name-btn:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.cs-name-btn.is-active {
+  color: var(--paper);
+  border-color: var(--ink);
+  background: var(--ink);
 }
 
 /* The case study card window. The chrome around it — eyebrow, dots, skip link
@@ -144,11 +193,12 @@ body {
    of it. A fixed height here pushed the eyebrow off the top of a 720px laptop
    screen. The avatar is capped against viewport height for the same reason. */
 .cs-window {
-  /* 22.5rem is the measured height of everything else in the pinned area on a
-     tall screen — its padding, the eyebrow, the dots, the skip link and the
-     arrow. The short-screen value below is the same measurement once that
-     chrome has been trimmed. */
-  height: clamp(15rem, calc(100vh - var(--cs-chrome, 22.5rem)), 38rem);
+  /* 27rem is the measured height of everything else in the pinned area on a
+     tall screen — its padding, the eyebrow, the name row, the dots, the skip
+     link and the arrow. The short-screen value below is the same measurement
+     once that chrome has been trimmed. Re-measure whenever anything around the
+     card changes; padding added there comes straight off the card. */
+  height: clamp(13rem, calc(100vh - var(--cs-chrome, 27rem)), 38rem);
 }
 
 /* Everything inside a card is sized in em against this, so the whole
@@ -165,7 +215,7 @@ body {
    half of what was available and pushing the eyebrow off the top. */
 @media (max-height: 820px) {
   .cs-pin {
-    --cs-chrome: 16rem;
+    --cs-chrome: 20.125rem;
     padding-top: 1.25rem;
   }
 
@@ -177,6 +227,15 @@ body {
      first thing to go when height is scarce. */
   .cs-skip-link {
     display: none;
+  }
+
+  /* Tighter chips too: their padding comes straight off the card. */
+  .cs-pin .cs-chip {
+    padding: 3px 10px;
+  }
+
+  .cs-pin .cs-names {
+    margin-bottom: 0.75rem;
   }
 }
 
@@ -228,15 +287,23 @@ body {
   }
 }
 
-/* Phone. The text is close to full width here, so the ring is pushed out and
-   the tiles shrunk right down to leave the words a clear centre. */
+/* Phone. The text runs nearly the full width here, so a wide ring puts its
+   assets off the sides of the screen. The ellipse is turned on its end instead
+   — narrow across, tall up and down — which brings the assets inside the
+   viewport and sends them above and below the words rather than through them.
+   The mask follows suit: wide enough to keep the text clear, short enough that
+   the assets at the top and bottom of the orbit stay visible. */
 @media (max-width: 640px) {
   .chapter-stage {
-    --r-chapter: clamp(200px, 56vw, 280px);
-    --squash: 0.8;
-    --chapter-tile: 0.5;
-    --clear-w: 92%;
-    --clear-h: 44%;
+    --r-chapter: clamp(90px, 28vw, 130px);
+    --squash: 2.7;
+    --chapter-tile: 0.62;
+    /* The clear zone has to cover the text block, which on a phone runs to
+       roughly 140px either side of centre — a shorter one let assets cross the
+       last line. The orbit is pushed out to match, so the tiles at the top and
+       bottom still clear it at full strength. */
+    --clear-w: 70%;
+    --clear-h: 40%;
   }
 }
 
@@ -425,6 +492,27 @@ body {
     rgba(255, 255, 255, 0.72) 78%,
     #ffffff 100%
   );
+}
+
+/* The downward arrows that lead from one section to the next. A hairline disc
+   so they read as buttons against the page rather than as stray glyphs. */
+.arrow-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.arrow-button:hover {
+  background: #ffffff;
+  border-color: var(--ink);
 }
 
 /* Motion only — no opacity pulse, so the arrow stays solid ink rather than

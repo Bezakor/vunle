@@ -37,9 +37,11 @@ export default function OrbitHero() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.28 }}
-          className="mt-7 max-w-md text-sm leading-relaxed text-[var(--ink-soft)] md:text-base"
+          // Wide enough, and held on one line from sm up, so the sentence isn't
+          // broken across two with a single word stranded on the second.
+          className="mt-7 max-w-xl text-sm leading-relaxed text-[var(--ink-soft)] sm:max-w-none sm:whitespace-nowrap md:text-base"
         >
-          A guided audio journey built for your specific goal.
+          Create your own guided audio journey for your specific goals.
         </motion.p>
 
         <motion.button
@@ -51,8 +53,8 @@ export default function OrbitHero() {
           className="mt-14 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
         >
           <span className="text-[10px] uppercase tracking-[0.28em]">Here&apos;s something surprising:</span>
-          <span aria-hidden className="animate-bounce-gentle text-xs">
-            ↓
+          <span aria-hidden className="arrow-button">
+            <span className="animate-bounce-gentle block text-xs">↓</span>
           </span>
         </motion.button>
       </div>

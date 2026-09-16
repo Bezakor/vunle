@@ -7,6 +7,9 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 
 const STORAGE_KEY = 'vunle-waitlist-joined';
 
+/** Formspree collects the waitlist; the endpoint is public by design. */
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mnpnaono';
+
 export default function WaitlistBar() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>('idle');
@@ -27,16 +30,26 @@ export default function WaitlistBar() {
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/waitlist', {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          // Without this Formspree replies with its own HTML thank-you page
+          // instead of JSON, and a redirect we don't want.
+          Accept: 'application/json',
+        },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong. Please try again.');
+        // Formspree reports problems as an `errors` array; fall back to a
+        // generic message if it sends something we don't recognise.
+        const detail = Array.isArray(data?.errors)
+          ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean).join(' ')
+          : '';
+        throw new Error(detail || 'Something went wrong. Please try again.');
       }
 
       window.localStorage.setItem(STORAGE_KEY, 'true');

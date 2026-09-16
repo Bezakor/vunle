@@ -14,20 +14,11 @@ export default function OrbitHero() {
       <OrbitField />
 
       <div className="relative z-10 flex flex-col items-center text-center">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
-          className="eyebrow"
-        >
-          Personal visualization
-        </motion.p>
-
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.12 }}
-          className="mt-6 max-w-2xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-5xl"
+          className="max-w-2xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-5xl"
         >
           Personal goals need
           <br />

@@ -3,4 +3,26 @@
 // `npm run dev` or `npm run build`.
 export type FloatingMedia = { src: string; kind: 'image' | 'video' };
 
-export const FLOATING_MEDIA: FloatingMedia[] = [];
+export const FLOATING_MEDIA: FloatingMedia[] = [
+  { src: '/floating/floating%20assets-v02.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v04.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v05.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v06.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v07.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v08.webm', kind: 'video' },
+  { src: '/floating/floating%20assets-v09.webm', kind: 'video' },
+  { src: '/floating/floating-assets-01.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-04.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-07.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-08.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-09.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-11.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-12.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-13.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-14.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-15.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-17.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-19.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-21.jpg', kind: 'image' },
+  { src: '/floating/floating-assets-v14.webm', kind: 'video' },
+];

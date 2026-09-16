@@ -1,4 +1,4 @@
-import { FLOATING_MEDIA } from './floatingManifest';
+import { FLOATING_MEDIA, type FloatingMedia } from './floatingManifest';
 
 /**
  * The shared pool of floating assets. The orbiting hero and the manifesto
@@ -46,12 +46,46 @@ const FRAMES: Omit<Asset, 'src' | 'kind'>[] = [
 ];
 
 /**
- * Frames paired with whatever is in public/floating, in filename order: the
- * first file fills the first frame, and so on. Frames past the end of the
- * folder keep their gradient, so the pool can be filled a few files at a time.
- * Files past the end of the frames are unused — there are 21 frames.
+ * Spaces the video out evenly across the frames, then fills the gaps with the
+ * images in filename order.
+ *
+ * Taking the folder in plain filename order bunched every clip together: the
+ * clips happened to be named with a space where the stills used a hyphen, so
+ * they all sorted first and landed on one half of the ring — every moving tile
+ * on one side, every still one on the other. Where a file sits in the list
+ * shouldn't decide that, so the motion is dealt out around the rings instead.
  */
+function distribute(media: FloatingMedia[], frameCount: number) {
+  const slots: (FloatingMedia | undefined)[] = new Array(frameCount).fill(undefined);
+  const videos = media.filter((m) => m.kind === 'video');
+  const images = media.filter((m) => m.kind === 'image');
+
+  const step = frameCount / Math.max(videos.length, 1);
+  videos.slice(0, frameCount).forEach((video, i) => {
+    let at = Math.round(i * step) % frameCount;
+    while (slots[at]) at = (at + 1) % frameCount;
+    slots[at] = video;
+  });
+
+  let next = 0;
+  for (const image of images) {
+    while (next < frameCount && slots[next]) next += 1;
+    if (next >= frameCount) break;
+    slots[next] = image;
+    next += 1;
+  }
+
+  return slots;
+}
+
+/**
+ * The frames, each carrying whatever media has been given to it. A frame with
+ * nothing to show keeps its gradient, so the folder can be filled a few files
+ * at a time. Files past the last frame go unused — there are 21 frames.
+ */
+const PLACED = distribute(FLOATING_MEDIA, FRAMES.length);
+
 export const ASSETS: Asset[] = FRAMES.map((frame, i) => {
-  const media = FLOATING_MEDIA[i];
+  const media = PLACED[i];
   return media ? { ...frame, src: media.src, kind: media.kind } : frame;
 });

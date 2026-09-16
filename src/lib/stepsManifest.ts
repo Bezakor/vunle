@@ -3,4 +3,8 @@
 // `npm run dev` or `npm run build`.
 export type StepMedia = { src: string; kind: 'image' | 'video' };
 
-export const STEP_MEDIA: StepMedia[] = [];
+export const STEP_MEDIA: StepMedia[] = [
+  { src: '/steps/step1-animation.webm', kind: 'video' },
+  { src: '/steps/step2-animation.webm', kind: 'video' },
+  { src: '/steps/step3-animation.webm', kind: 'video' },
+];

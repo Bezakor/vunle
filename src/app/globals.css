@@ -321,20 +321,22 @@ body {
   }
 }
 
-/* The clip above a step. Contained rather than cropped, and on a fixed height
-   so three cards line up whatever proportions the files happen to have. */
+/* The clip above a step. It takes the full width of its card and keeps its own
+   proportions, so nothing is cropped and the demo is as large as the card
+   allows — these carry readable interface labels, and a fixed height was
+   letterboxing them smaller than they needed to be. Clips of matching
+   proportions keep the three cards level; mixed ones will not.
+
+   The corner radius is deliberate: an exported clip without an alpha channel is
+   an opaque rectangle on the card, and rounding it reads as a deliberate
+   thumbnail rather than as a seam. */
 .step-mark {
   display: block;
   width: 100%;
-  height: 96px;
+  height: auto;
   margin: 0 auto;
+  border-radius: 10px;
   object-fit: contain;
-}
-
-@media (min-width: 768px) {
-  .step-mark {
-    height: 112px;
-  }
 }
 
 /* --- chapter orbit --- */

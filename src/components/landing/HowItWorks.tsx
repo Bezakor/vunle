@@ -102,7 +102,9 @@ export default function HowItWorks() {
       // step clips did, putting the caption straight through it.
       className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-24 pb-56"
     >
-      <div className="grid w-full max-w-4xl gap-5 md:grid-cols-3">
+      {/* Wider than the type around it: the clips are interface demos with
+          readable labels in them, not abstract marks, so they need the room. */}
+      <div className="grid w-full max-w-5xl gap-5 md:grid-cols-3">
         {howItWorks.map((item, i) => (
           <motion.div
             key={item.step}

@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/generate-floating-manifest.mjs",
+    "predev": "node scripts/generate-asset-manifest.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/generate-floating-manifest.mjs",
+    "prebuild": "node scripts/generate-asset-manifest.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "assets": "node scripts/generate-floating-manifest.mjs"
+    "assets": "node scripts/generate-asset-manifest.mjs"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

@@ -16,6 +16,17 @@ export interface CaseStudy {
 
 export const caseStudies: CaseStudy[] = [
   {
+    id: 'gaga',
+    avatar: '/case-studies/profile_02-LG-lady-gaga.jpg',
+    name: 'Lady Gaga',
+    title: 'Musician, Artist',
+    initials: 'LG',
+    isQuote: true,
+    headline: 'Acting as if it’s already real.',
+    description:
+      'Early in her career, she visualized her fame and rehearsed performances as though she were already a global icon — anchoring that mental image until it became her reality.',
+  },
+  {
     id: 'jordan',
     avatar: '/case-studies/profile_01-MJ-michael-jordan.jpg',
     name: 'Michael Jordan',
@@ -26,17 +37,6 @@ export const caseStudies: CaseStudy[] = [
       'I visualized where I wanted to be, what kind of player I wanted to become. I knew exactly where I wanted to go, and I focused on getting there.',
     description:
       'Treated mental rehearsal as equal to physical training — using visualization to build unwavering self-belief and handle the pressure of game-winning moments.',
-  },
-  {
-    id: 'gaga',
-    avatar: '/case-studies/profile_02-LG-lady-gaga.jpg',
-    name: 'Lady Gaga',
-    title: 'Musician, Artist',
-    initials: 'LG',
-    isQuote: true,
-    headline: 'Acting as if it’s already real.',
-    description:
-      'Early in her career, she visualized her fame and rehearsed performances as though she were already a global icon — anchoring that mental image until it became her reality.',
   },
   {
     id: 'robbins-tony',

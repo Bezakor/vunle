@@ -1,7 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { howItWorks } from '@/lib/manifesto';
+import { STEP_MEDIA } from '@/lib/stepsManifest';
+import { scrollToElement } from '@/lib/smoothScroll';
 
 /**
  * Three simple line marks, drawn to match the mono/hairline feel of the rest of
@@ -32,7 +35,57 @@ const ICONS = [
   </svg>,
 ];
 
+/**
+ * A step's clip from public/steps, run full bleed across the top of its card —
+ * against the top edge and both sides, with the card's own rounded corners
+ * clipping it. It fills that band rather than fitting inside it, so the three
+ * cards keep a level seam whatever proportions the files have.
+ *
+ * Returns nothing when there is no clip, or when one fails to load: the card
+ * falls back to the line-drawn icon inside its padding instead of holding open
+ * an empty band.
+ */
+function StepClip({
+  index,
+  still,
+  onFail,
+}: {
+  index: number;
+  still: boolean;
+  onFail: () => void;
+}) {
+  const media = STEP_MEDIA[index];
+  if (!media) return null;
+
+  if (media.kind === 'image') {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={media.src} alt="" aria-hidden className="step-clip" onError={onFail} />
+    );
+  }
+
+  return (
+    <video
+      className="step-clip"
+      src={media.src}
+      // Decorative, so it stays silent and out of the tab order. Paused under
+      // reduced motion, where it shows its first frame instead of looping.
+      autoPlay={!still}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-hidden
+      tabIndex={-1}
+      onError={onFail}
+    />
+  );
+}
+
 export default function HowItWorks() {
+  const still = useReducedMotion() ?? false;
+  const [failed, setFailed] = useState<number[]>([]);
+
   // Walks to the next snap point in document order, the same way the chapter
   // arrows do, so this section finds the closing call to action without needing
   // to name it.
@@ -40,15 +93,23 @@ export default function HowItWorks() {
     const section = e.currentTarget.closest('[data-snap]');
     if (!section) return;
     const points = Array.from(document.querySelectorAll('[data-snap]'));
-    points[points.indexOf(section) + 1]?.scrollIntoView({ behavior: 'smooth' });
+    scrollToElement(points[points.indexOf(section) + 1]);
   };
 
   return (
     <section
       data-snap=""
-      className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 py-24"
+      // Still a target to land on, but not one the page is pulled out of: see
+      // the free-scroll rule in ScrollSnapController.
+      data-snap-free=""
+      // The arrow sits at a fixed offset from the bottom, so its band is reserved
+      // here rather than left for the content to grow into — which is what the
+      // step clips did, putting the caption straight through it.
+      className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-24 pb-56"
     >
-      <div className="grid w-full max-w-4xl gap-5 md:grid-cols-3">
+      {/* Wider than the type around it: the clips are interface demos with
+          readable labels in them, not abstract marks, so they need the room. */}
+      <div className="grid w-full max-w-5xl gap-5 md:grid-cols-3">
         {howItWorks.map((item, i) => (
           <motion.div
             key={item.step}
@@ -56,14 +117,24 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.12 }}
-            className="paper-card rounded-2xl p-8 text-center"
+            // overflow-hidden so the clip's corners are cut by the card's own
+            // radius; the padding moves inside, below the clip.
+            className="paper-card overflow-hidden rounded-2xl text-center"
           >
-            <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
-              {ICONS[i]}
-            </span>
-            <span className="mt-5 block text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
-            <h3 className="mt-3 text-base font-medium">{item.title}</h3>
-            <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>
+            {!failed.includes(i) && (
+              <StepClip index={i} still={still} onFail={() => setFailed((f) => [...f, i])} />
+            )}
+
+            <div className="px-8 pt-6 pb-8">
+              {(!STEP_MEDIA[i] || failed.includes(i)) && (
+                <span className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
+                  {ICONS[i]}
+                </span>
+              )}
+              <span className="block text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
+              <h3 className="mt-3 text-base font-medium">{item.title}</h3>
+              <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -78,6 +149,18 @@ export default function HowItWorks() {
         Download &amp; listen to your personal visualisation guide.
       </motion.p>
 
+      <motion.p
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.55 }}
+        className="mt-6 max-w-2xl text-center text-xs leading-relaxed text-[var(--ink-soft)] md:text-sm"
+      >
+        Vunle combines proven visualisation techniques from performance
+        psychology including PETTLEP imagery, and Mental Contrasting to create a
+        future you can vividly see, feel and rehearse.
+      </motion.p>
+
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -89,7 +172,7 @@ export default function HowItWorks() {
           type="button"
           onClick={goNext}
           aria-label="Go to the next section"
-          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="arrow-button"
         >
           <span aria-hidden className="animate-bounce-gentle block text-sm">
             ↓

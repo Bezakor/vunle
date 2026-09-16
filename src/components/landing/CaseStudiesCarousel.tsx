@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { caseStudies, type CaseStudy } from '@/lib/caseStudies';
+import { scrollToId, scrollToY } from '@/lib/smoothScroll';
 
 const AVATAR_GRADIENTS = [
   'radial-gradient(circle at 30% 30%, #b7a5ff, #4b3f7a 75%)',
@@ -98,11 +99,11 @@ export default function CaseStudiesCarousel() {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const top = wrapper.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
+    scrollToY(top + i * window.innerHeight);
   }, []);
 
   const scrollToSection = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId(id);
   }, []);
 
   // The arrows stay available on the first and last cards: instead of dead-ending,
@@ -133,11 +134,28 @@ export default function CaseStudiesCarousel() {
     }
   };
 
+  // On a phone the name row scrolls sideways, so keep the current name in view
+  // as the cards change — otherwise it sits off the edge and the row looks
+  // stuck on whoever it started with.
+  const namesRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // Scrolled by hand rather than with scrollIntoView: on a name that is
+    // partly out of view vertically, scrollIntoView moves the page as well as
+    // the row, which would fight the jump that just started.
+    const row = namesRef.current;
+    const active = row?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!row || !active) return;
+    row.scrollTo({
+      left: active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2,
+      behavior: 'smooth',
+    });
+  }, [state.index]);
+
   const study = caseStudies[state.index];
   const offset = reduceMotion ? 0 : 36;
 
   return (
-    <section ref={wrapperRef} className="relative" style={{ height: `${N * 100}vh` }}>
+    <section ref={wrapperRef} id="case-studies" className="relative" style={{ height: `${N * 100}vh` }}>
       {/* One snap marker per card, so the page eases onto a card rather than
           resting between two of them. */}
       {caseStudies.map((s, i) => (
@@ -171,16 +189,13 @@ export default function CaseStudiesCarousel() {
               style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
             />
           )}
-          {/* White scrim over the footage, then a grid of white dots on top of
-              it. Held just short of fully opaque on purpose: at a true 1.0 the
-              video would be covered completely and the white dots would have
-              nothing to read against. --cs-scrim in globals.css is the knob. */}
+          {/* A light wash over the footage rather than a cover for it —
+              --cs-scrim in globals.css is the knob. */}
           <div className="absolute inset-0 backdrop-blur-[2px]" />
           <div className="cs-scrim absolute inset-0" />
-          <div className="dot-grid absolute inset-0" />
         </div>
 
-        <p className="eyebrow mb-8 flex items-center justify-center gap-3">
+        <p className="eyebrow cs-chip mb-6 flex shrink-0 items-center justify-center gap-3">
           <span>Case studies</span>
           <span aria-hidden className="text-[var(--line-strong)]">/</span>
           {/* Announced politely rather than on every scroll tick, so a screen
@@ -189,6 +204,21 @@ export default function CaseStudiesCarousel() {
             {state.index + 1} of {N}
           </span>
         </p>
+
+        {/* Jump straight to whoever you came for. */}
+        <nav ref={namesRef} aria-label="Case studies" className="cs-names mb-5 flex w-full max-w-3xl shrink-0 items-center justify-start gap-2 overflow-x-auto px-1 sm:justify-center">
+          {caseStudies.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => scrollToCard(i)}
+              aria-current={i === state.index ? 'true' : undefined}
+              className={`cs-name-btn ${i === state.index ? 'is-active' : ''}`}
+            >
+              {s.name}
+            </button>
+          ))}
+        </nav>
 
         <div className="relative w-full max-w-xl">
           <button
@@ -239,7 +269,7 @@ export default function CaseStudiesCarousel() {
           </button>
         </div>
 
-        <div className="mt-6 flex items-center gap-2">
+        <div className="cs-chip mt-6 flex shrink-0 items-center gap-2">
           {caseStudies.map((s, i) => (
             <button
               key={s.id}
@@ -258,9 +288,9 @@ export default function CaseStudiesCarousel() {
         <button
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
-          className="cs-skip-link mt-6 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
+          className="cs-skip-link cs-chip mt-6 shrink-0 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
         >
-          Skip the case studies
+          But here&rsquo;s the big problem&hellip;
         </button>
 
         {/* The same arrow the chapters carry, so leaving this section works the
@@ -269,7 +299,7 @@ export default function CaseStudiesCarousel() {
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
           aria-label="Go to the next section"
-          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="arrow-button mt-4"
         >
           <span aria-hidden className="animate-bounce-gentle block text-sm">
             ↓

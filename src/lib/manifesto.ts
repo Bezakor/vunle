@@ -1,3 +1,10 @@
+/**
+ * `[logo]` anywhere in a line is replaced by the wordmark, set to the height of
+ * the surrounding type. It falls back to the word "Vunle" when there is no logo
+ * file, so the sentence always reads.
+ */
+export const LOGO_TOKEN = '[logo]';
+
 export interface ManifestoBeat {
   id: string;
   lines: string[];
@@ -52,7 +59,7 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'exists',
     lines: [
-      'That’s why Vunle exists.',
+      'That’s why [logo] exists.',
       'Vunle creates a guided visualization made only for you.',
       'Here’s how it works…',
     ],

@@ -10,8 +10,41 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'framer-motion';
-import type { ManifestoBeat } from '@/lib/manifesto';
+import { LOGO_TOKEN, type ManifestoBeat } from '@/lib/manifesto';
+import { LOGO_SRC } from '@/lib/brandManifest';
 import ChapterAssets from './ChapterAssets';
+import { scrollToElement } from '@/lib/smoothScroll';
+
+/**
+ * Renders a line, swapping the logo token for the wordmark set to the height of
+ * the type around it. Without a logo file the token becomes the word itself, so
+ * the sentence still reads either way.
+ *
+ * The image carries the word as its alt text, so the sentence is unchanged for
+ * anyone hearing it rather than seeing it.
+ */
+function LineContent({ line }: { line: string }) {
+  if (!line.includes(LOGO_TOKEN)) return <>{line}</>;
+
+  // Held in a local so the narrowing survives into the callback below.
+  const src = LOGO_SRC;
+  if (!src) return <>{line.split(LOGO_TOKEN).join('Vunle')}</>;
+
+  const parts = line.split(LOGO_TOKEN);
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {i > 0 && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt="Vunle" className="inline-wordmark" />
+          )}
+          {part}
+        </span>
+      ))}
+    </>
+  );
+}
 
 /** Seconds between each word lighting up. */
 const WORD_STAGGER = 0.11;
@@ -65,7 +98,7 @@ function RevealingLine({
                 }
           }
         >
-          {i < words.length - 1 ? word + ' ' : word}
+          <LineContent line={i < words.length - 1 ? word + ' ' : word} />
         </motion.span>
       ))}
     </p>
@@ -125,7 +158,7 @@ export default function ManifestoSection({
     const el = ref.current;
     if (!el) return;
     const points = Array.from(document.querySelectorAll('[data-snap]'));
-    points[points.indexOf(el) + 1]?.scrollIntoView({ behavior: 'smooth' });
+    scrollToElement(points[points.indexOf(el) + 1]);
   };
 
   return (
@@ -161,7 +194,7 @@ export default function ManifestoSection({
 
           return (
             <p key={i} className={classes}>
-              {line}
+              <LineContent line={line} />
             </p>
           );
         })}
@@ -175,7 +208,7 @@ export default function ManifestoSection({
           type="button"
           onClick={goNext}
           aria-label="Go to the next section"
-          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="arrow-button"
         >
           <span aria-hidden className="animate-bounce-gentle block text-sm">
             ↓

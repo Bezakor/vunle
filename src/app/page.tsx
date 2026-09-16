@@ -9,6 +9,7 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import OrbitHero from '@/components/landing/OrbitHero';
 import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
 import ScrollSnapController from '@/components/landing/ScrollSnapController';
+import SiteLogo from '@/components/landing/SiteLogo';
 import WaitlistBar from '@/components/landing/WaitlistBar';
 
 const splitIndex = manifesto.findIndex((beat) => beat.id === 'athletes') + 1;
@@ -22,6 +23,8 @@ export default function Home() {
     <div className="relative min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <ScrollSnapController />
       <ScrollProgressBar targetRef={manifestoJourneyRef} />
+
+      <SiteLogo />
 
       <OrbitHero />
 

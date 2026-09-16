@@ -66,7 +66,12 @@ export default function ClosingSection() {
       ref={ref}
       id="closing-cta"
       data-snap=""
+      // pointermove as well as pointerenter: scrolling the section up to a
+      // stationary cursor never crosses its boundary, so enter alone left the
+      // burst waiting until the pointer happened to leave and come back. Any
+      // movement anywhere over the section now sets it off.
       onPointerEnter={() => setBurst(true)}
+      onPointerMove={() => setBurst(true)}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-44 text-center"
     >
       <OrbitField spread={reduceMotion ? undefined : spread} opacity={reduceMotion ? undefined : opacity} />

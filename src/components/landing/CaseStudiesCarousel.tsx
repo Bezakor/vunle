@@ -290,7 +290,7 @@ export default function CaseStudiesCarousel() {
           onClick={() => scrollToSection('manifesto-continue')}
           className="cs-skip-link cs-chip mt-6 shrink-0 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
         >
-          Skip the case studies
+          But here&rsquo;s the big problem&hellip;
         </button>
 
         {/* The same arrow the chapters carry, so leaving this section works the

@@ -321,22 +321,23 @@ body {
   }
 }
 
-/* The clip above a step. It takes the full width of its card and keeps its own
-   proportions, so nothing is cropped and the demo is as large as the card
-   allows — these carry readable interface labels, and a fixed height was
-   letterboxing them smaller than they needed to be. Clips of matching
-   proportions keep the three cards level; mixed ones will not.
-
-   The corner radius is deliberate: an exported clip without an alpha channel is
-   an opaque rectangle on the card, and rounding it reads as a deliberate
-   thumbnail rather than as a seam. */
-.step-mark {
+/* A step's clip, run full bleed across the top of its card. It fills the band
+   rather than fitting inside it, so the three cards keep a level seam whatever
+   proportions the files have — the card's own overflow rounds its top corners.
+   The height is a band, not the clip's own shape, which is what keeps the three
+   aligned when the files differ. */
+.step-clip {
   display: block;
   width: 100%;
-  height: auto;
-  margin: 0 auto;
-  border-radius: 10px;
-  object-fit: contain;
+  height: 168px;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 767px) {
+  .step-clip {
+    height: 180px;
+  }
 }
 
 /* --- chapter orbit --- */

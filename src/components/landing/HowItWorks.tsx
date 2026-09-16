@@ -36,36 +36,37 @@ const ICONS = [
 ];
 
 /**
- * The mark at the top of a step: its clip from public/steps if there is one,
- * otherwise the line-drawn icon. The icon is also the fallback if a clip fails
- * to load, so a step is never left with a blank space above it.
+ * A step's clip from public/steps, run full bleed across the top of its card —
+ * against the top edge and both sides, with the card's own rounded corners
+ * clipping it. It fills that band rather than fitting inside it, so the three
+ * cards keep a level seam whatever proportions the files have.
  *
- * The clip replaces the icon rather than sitting above it — showing an
- * animation of a step and a drawing of the same step together reads as a
- * duplicate rather than a pair.
+ * Returns nothing when there is no clip, or when one fails to load: the card
+ * falls back to the line-drawn icon inside its padding instead of holding open
+ * an empty band.
  */
-function StepMark({ index, still }: { index: number; still: boolean }) {
-  const [failed, setFailed] = useState(false);
+function StepClip({
+  index,
+  still,
+  onFail,
+}: {
+  index: number;
+  still: boolean;
+  onFail: () => void;
+}) {
   const media = STEP_MEDIA[index];
-
-  if (!media || failed) {
-    return (
-      <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
-        {ICONS[index]}
-      </span>
-    );
-  }
+  if (!media) return null;
 
   if (media.kind === 'image') {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={media.src} alt="" aria-hidden className="step-mark" onError={() => setFailed(true)} />
+      <img src={media.src} alt="" aria-hidden className="step-clip" onError={onFail} />
     );
   }
 
   return (
     <video
-      className="step-mark"
+      className="step-clip"
       src={media.src}
       // Decorative, so it stays silent and out of the tab order. Paused under
       // reduced motion, where it shows its first frame instead of looping.
@@ -76,13 +77,14 @@ function StepMark({ index, still }: { index: number; still: boolean }) {
       preload="metadata"
       aria-hidden
       tabIndex={-1}
-      onError={() => setFailed(true)}
+      onError={onFail}
     />
   );
 }
 
 export default function HowItWorks() {
   const still = useReducedMotion() ?? false;
+  const [failed, setFailed] = useState<number[]>([]);
 
   // Walks to the next snap point in document order, the same way the chapter
   // arrows do, so this section finds the closing call to action without needing
@@ -112,12 +114,24 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.12 }}
-            className="paper-card rounded-2xl p-8 text-center"
+            // overflow-hidden so the clip's corners are cut by the card's own
+            // radius; the padding moves inside, below the clip.
+            className="paper-card overflow-hidden rounded-2xl text-center"
           >
-            <StepMark index={i} still={still} />
-            <span className="mt-5 block text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
-            <h3 className="mt-3 text-base font-medium">{item.title}</h3>
-            <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>
+            {!failed.includes(i) && (
+              <StepClip index={i} still={still} onFail={() => setFailed((f) => [...f, i])} />
+            )}
+
+            <div className="px-8 pt-6 pb-8">
+              {(!STEP_MEDIA[i] || failed.includes(i)) && (
+                <span className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
+                  {ICONS[i]}
+                </span>
+              )}
+              <span className="block text-xs tracking-[0.2em] text-[var(--ink-faint)]">{item.step}</span>
+              <h3 className="mt-3 text-base font-medium">{item.title}</h3>
+              <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">{item.detail}</p>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -130,6 +144,18 @@ export default function HowItWorks() {
         className="mt-14 max-w-2xl text-center text-xl leading-relaxed tracking-tight text-balance text-[var(--ink)] md:text-3xl"
       >
         Download &amp; listen to your personal visualisation guide.
+      </motion.p>
+
+      <motion.p
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.55 }}
+        className="mt-6 max-w-2xl text-center text-xs leading-relaxed text-[var(--ink-soft)] md:text-sm"
+      >
+        Vunle combines proven visualisation techniques from performance
+        psychology including PETTLEP imagery, and Mental Contrasting to create a
+        future you can vividly see, feel and rehearse.
       </motion.p>
 
       <motion.div

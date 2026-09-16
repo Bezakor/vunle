@@ -155,7 +155,7 @@ export default function CaseStudiesCarousel() {
   const offset = reduceMotion ? 0 : 36;
 
   return (
-    <section ref={wrapperRef} className="relative" style={{ height: `${N * 100}vh` }}>
+    <section ref={wrapperRef} id="case-studies" className="relative" style={{ height: `${N * 100}vh` }}>
       {/* One snap marker per card, so the page eases onto a card rather than
           resting between two of them. */}
       {caseStudies.map((s, i) => (

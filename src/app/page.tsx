@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { manifesto } from '@/lib/manifesto';
 import ManifestoSection from '@/components/landing/ManifestoSection';
 import CaseStudiesCarousel from '@/components/landing/CaseStudiesCarousel';
@@ -19,6 +19,13 @@ const manifestoAfterCaseStudies = manifesto.slice(splitIndex);
 export default function Home() {
   const manifestoJourneyRef = useRef<HTMLDivElement>(null);
 
+  // The email form opens inside the hero and docks to the foot of the window
+  // once the reader leaves it — by the hint button or by scrolling past. One
+  // way only: having it hop back into the hero on the way up would move the
+  // page's one call to action around under the reader.
+  const [waitlistDocked, setWaitlistDocked] = useState(false);
+  const dockWaitlist = useCallback(() => setWaitlistDocked(true), []);
+
   return (
     <div className="relative min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <ScrollSnapController />
@@ -26,7 +33,10 @@ export default function Home() {
 
       <SiteLogo />
 
-      <OrbitHero />
+      <OrbitHero
+        onLeaveHero={dockWaitlist}
+        waitlist={<WaitlistBar docked={waitlistDocked} />}
+      />
 
       {/* Manifesto — scroll story, with the case studies woven in after the athletes beat */}
       <div ref={manifestoJourneyRef} className="relative">
@@ -64,8 +74,6 @@ export default function Home() {
       <HowItWorks />
 
       <ClosingSection />
-
-      <WaitlistBar />
     </div>
   );
 }

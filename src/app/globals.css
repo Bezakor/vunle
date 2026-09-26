@@ -280,18 +280,24 @@ body {
   background: var(--ink);
 }
 
-/* The case study card window. The chrome around it — eyebrow, dots, skip link
-   and arrow, plus the pinned section's own padding — is a fixed height, so what
-   is left for the card is the viewport minus a constant rather than a fraction
-   of it. A fixed height here pushed the eyebrow off the top of a 720px laptop
-   screen. The avatar is capped against viewport height for the same reason. */
+/* The case study card window. It is whatever height the pinned section has left
+   once the chrome around it — eyebrow, name row, dots, skip link, arrow and the
+   section's own padding — has taken what it needs: the wrapper is the flex
+   column's stretchy item (.cs-frame below) and the window simply fills it.
+   Measuring the chrome into a constant instead meant re-measuring it every time
+   anything around the card moved, and being a few pixels out clipped the last
+   line of the longest quotes. */
 .cs-window {
-  /* 27rem is the measured height of everything else in the pinned area on a
-     tall screen — its padding, the eyebrow, the name row, the dots, the skip
-     link and the arrow. The short-screen value below is the same measurement
-     once that chrome has been trimmed. Re-measure whenever anything around the
-     card changes; padding added there comes straight off the card. */
-  height: clamp(13rem, calc(100vh - var(--cs-chrome, 27rem)), 38rem);
+  height: 100%;
+}
+
+/* The stretchy wrapper: takes the leftover height, never more than a card's
+   worth of it. min-height: 0 is what lets it shrink below its contents on a
+   short screen rather than pushing the eyebrow off the top. */
+.cs-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 38rem;
 }
 
 /* Everything inside a card is sized in em against this, so the whole
@@ -302,13 +308,62 @@ body {
   font-size: min(clamp(10px, 1.52vh, 16px), 3.2vw, 16px);
 }
 
+.cs-avatar {
+  height: 10em;
+  width: 10em;
+}
+
+/* A phone. Tall enough not to be caught by the short-screen rules below, but
+   narrow enough that the quotes run long — the chrome gives up a little of its
+   breathing room, and the portrait a little of its size, so the last line of a
+   long quote stays on the card. */
+@media (max-width: 480px) and (min-height: 621px) {
+  .cs-pin {
+    padding-top: 2.5rem;
+  }
+
+  .cs-pin .eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  .cs-pin .cs-names {
+    margin-bottom: 0.75rem;
+  }
+
+  .cs-avatar {
+    height: 8.5em;
+    width: 8.5em;
+  }
+}
+
+/* Screens too short to give the card a full window — an old 568px phone. The
+   type floor and the portrait both come down rather than the last line of the
+   quote being cut off, and what sits under the card is pulled in close. */
+@media (max-height: 620px) {
+  .cs-card-scale {
+    font-size: min(clamp(8px, 1.52vh, 16px), 3.2vw, 16px);
+  }
+
+  .cs-avatar {
+    height: 7.5em;
+    width: 7.5em;
+  }
+
+  .cs-pin .cs-dots {
+    margin-top: 0.75rem;
+  }
+
+  .cs-pin .arrow-button {
+    margin-top: 0.5rem;
+  }
+}
+
 /* A short window — a 1366x768 or 1280x720 laptop, which is most laptops once
    browser chrome is taken off — has to give the card its room back. The chrome
    around it is a fixed height, so on a 720px screen it was taking more than
    half of what was available and pushing the eyebrow off the top. */
 @media (max-height: 820px) {
   .cs-pin {
-    --cs-chrome: 20.125rem;
     padding-top: 1.25rem;
   }
 

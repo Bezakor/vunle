@@ -36,7 +36,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
       // in em resolves against the element's own font-size, so scaling the
       // initials on this div would scale the disc with them.
       <div
-        className="flex h-[10em] w-[10em] shrink-0 items-center justify-center rounded-full font-medium text-white"
+        className="cs-avatar flex shrink-0 items-center justify-center rounded-full font-medium text-white"
         style={{ background: gradient }}
       >
         <span className="text-[1.5em]">{study.initials}</span>
@@ -53,7 +53,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
       height={160}
       loading="lazy"
       onError={() => setFailed(true)}
-      className="h-[10em] w-[10em] shrink-0 rounded-full object-cover"
+      className="cs-avatar shrink-0 rounded-full object-cover"
       style={{ background: gradient }}
     />
   );
@@ -205,22 +205,33 @@ export default function CaseStudiesCarousel() {
           </span>
         </p>
 
-        {/* Jump straight to whoever you came for. */}
-        <nav ref={namesRef} aria-label="Case studies" className="cs-names mb-5 flex w-full max-w-3xl shrink-0 items-center justify-start gap-2 overflow-x-auto px-1 sm:justify-center">
-          {caseStudies.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => scrollToCard(i)}
-              aria-current={i === state.index ? 'true' : undefined}
-              className={`cs-name-btn ${i === state.index ? 'is-active' : ''}`}
-            >
-              {s.name}
-            </button>
-          ))}
+        {/* Jump straight to whoever you came for. The row itself is the scroller
+            and `relative` makes it the offset parent the effect above measures
+            against; the inner track centres the names with auto margins, which
+            collapse to nothing once there are too many to fit — centring the
+            flex items directly would instead overflow to both sides and leave
+            the first name unreachable. */}
+        <nav
+          ref={namesRef}
+          aria-label="Case studies"
+          className="cs-names relative mb-5 w-full max-w-5xl shrink-0 overflow-x-auto px-1"
+        >
+          <div className="mx-auto flex w-max items-center gap-2">
+            {caseStudies.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => scrollToCard(i)}
+                aria-current={i === state.index ? 'true' : undefined}
+                className={`cs-name-btn ${i === state.index ? 'is-active' : ''}`}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
         </nav>
 
-        <div className="relative w-full max-w-xl">
+        <div className="cs-frame relative w-full max-w-xl">
           <button
             type="button"
             onClick={handlePrev}
@@ -269,7 +280,7 @@ export default function CaseStudiesCarousel() {
           </button>
         </div>
 
-        <div className="cs-chip mt-6 flex shrink-0 items-center gap-2">
+        <div className="cs-chip cs-dots mt-6 flex shrink-0 items-center gap-2">
           {caseStudies.map((s, i) => (
             <button
               key={s.id}

@@ -1,19 +1,51 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect, useRef, type ReactNode } from 'react';
 import OrbitField from './OrbitField';
 import { scrollToId } from '@/lib/smoothScroll';
 
 /**
  * The landing hero: the shared orbit field behind a centred headline. The ring
  * layout itself lives in @/lib/orbit so the closing section can reuse it.
+ *
+ * `waitlist` is the email form, which starts here under the subtitle and moves
+ * to the bar at the foot of the page once the reader heads into the manifesto —
+ * it is passed in rather than rendered here so the same instance makes that
+ * move, keeping whatever has been typed into it.
  */
-export default function OrbitHero() {
+export default function OrbitHero({
+  waitlist,
+  onLeaveHero,
+}: {
+  waitlist?: ReactNode;
+  onLeaveHero?: () => void;
+}) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Scrolling past the hero counts as leaving it too. Without this the form
+  // would ride away with the hero and the page would spend the rest of its
+  // length with nowhere to sign up.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !onLeaveHero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) onLeaveHero();
+      },
+      // Not on mount: the hero is on screen then, and `isIntersecting` is only
+      // false once it has actually gone.
+      { threshold: 0 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [onLeaveHero]);
+
   return (
-    <section data-snap="" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+    <section ref={sectionRef} data-snap="" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
       <OrbitField />
 
-      <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -36,15 +68,22 @@ export default function OrbitHero() {
           Create your own guided audio journey for your specific goals.
         </motion.p>
 
+        {waitlist}
+
         <motion.button
           type="button"
-          onClick={() => scrollToId('manifesto-start')}
+          onClick={() => {
+            onLeaveHero?.();
+            scrollToId('manifesto-start');
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.1 }}
-          className="mt-14 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="mt-12 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
         >
-          <span className="text-[10px] uppercase tracking-[0.28em]">Here&apos;s something surprising:</span>
+          <span className="max-w-[16rem] text-[10px] uppercase tracking-[0.22em] text-balance sm:max-w-none sm:tracking-[0.28em]">
+            You can change your life! Here&apos;s how&hellip;
+          </span>
           <span aria-hidden className="arrow-button">
             <span className="animate-bounce-gentle block text-xs">↓</span>
           </span>

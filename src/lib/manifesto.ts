@@ -35,7 +35,7 @@ export const manifesto: ManifestoBeat[] = [
       'They use guided visualizations every single day.',
       'They rehearse the future in their mind until it feels familiar —',
       'and the body follows.',
-      "Here's 5 case studies…",
+      "Here's 7 case studies…",
     ],
   },
   {

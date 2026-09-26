@@ -1,94 +1,59 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-type Status = 'idle' | 'loading' | 'success' | 'error';
-
-const STORAGE_KEY = 'vunle-waitlist-joined';
-
-/** Formspree collects the waitlist; the endpoint is public by design. */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mnpnaono';
-
-/* Where the form sits, and how it gets there. Held outside the component so the
-   references are stable: a fresh keyframe array on every render would restart
-   the docking animation each time. */
-const IN_HERO = { opacity: 1, y: 0 };
-const DOCKING = { opacity: [0, 1], y: [20, 0] };
+import { useWaitlist } from './waitlistState';
 
 /**
- * The email form. It opens under the hero subtitle and, once the reader heads
- * down the page, docks into the bar across the foot of the window — the same
- * instance either way, so a half-typed address survives the move.
+ * Where the form is standing. It opens under the hero headline, rides the foot
+ * of the window through the middle of the page, and comes to rest in the
+ * closing section under "Join the waitlist below." The state behind it lives in
+ * WaitlistProvider, so moving between the three costs the reader nothing.
  */
-export default function WaitlistBar({ docked = false }: { docked?: boolean }) {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<Status>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+export type WaitlistPlace = 'hero' | 'bar' | 'closing';
+
+const PLACE_CLASS: Record<WaitlistPlace, string> = {
+  hero: 'mt-10 w-full max-w-xl',
+  bar: 'fixed inset-x-0 bottom-0 z-50 px-4 pb-10 md:pb-14',
+  closing: 'relative z-10 mt-8 w-full max-w-xl',
+};
+
+export default function WaitlistBar({
+  place = 'bar',
+  visible = true,
+}: {
+  place?: WaitlistPlace;
+  /** The closing section keeps the form's space reserved before the reader
+   *  arrives, so stepping into it doesn't shove the lines above it up the
+   *  screen. Hidden rather than absent: `visibility` takes it out of the tab
+   *  order and off screen readers while it still holds its ground. */
+  visible?: boolean;
+}) {
+  const { email, setEmail, status, errorMessage, submit } = useWaitlist();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage.getItem(STORAGE_KEY)) {
-      setStatus('success');
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (status === 'loading' || status === 'success') return;
-
-    setStatus('loading');
-    setErrorMessage('');
-
-    try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Without this Formspree replies with its own HTML thank-you page
-          // instead of JSON, and a redirect we don't want.
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        // Formspree reports problems as an `errors` array; fall back to a
-        // generic message if it sends something we don't recognise.
-        const detail = Array.isArray(data?.errors)
-          ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean).join(' ')
-          : '';
-        throw new Error(detail || 'Something went wrong. Please try again.');
-      }
-
-      window.localStorage.setItem(STORAGE_KEY, 'true');
-      setStatus('success');
-    } catch (err) {
-      setStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
-    }
+    void submit();
   };
 
   return (
     <motion.div
-      // No entrance of its own in the hero: it is part of that first
-      // composition, and the card below already fades in with it.
-      initial={false}
-      animate={docked ? DOCKING : IN_HERO}
+      // The bar arrives from below the fold. The other two are part of the
+      // composition they sit in, so they fade up with the card below rather
+      // than sliding in on their own.
+      initial={place === 'bar' ? { opacity: 0, y: 20 } : false}
+      animate={{ opacity: visible ? 1 : 0, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={
-        docked
-          ? 'fixed inset-x-0 bottom-0 z-50 px-4 pb-10 md:pb-14'
-          : 'mt-10 w-full max-w-xl'
-      }
+      style={{ visibility: visible ? 'visible' : 'hidden' }}
+      data-waitlist={place}
+      className={PLACE_CLASS[place]}
     >
       <div className="mx-auto max-w-xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.4 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: place === 'hero' ? 0.4 : 0 }}
           className="paper-card rounded-full p-2"
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -122,6 +87,7 @@ export default function WaitlistBar({ docked = false }: { docked?: boolean }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
+                  aria-label="Email address"
                   className="min-w-0 flex-1 rounded-full bg-transparent px-4 py-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none sm:px-5"
                 />
                 <motion.button

@@ -23,7 +23,16 @@ import OrbitField from './OrbitField';
  * 70vh the page bottomed out 270px short, leaving the section unable to settle
  * and the arrow above it unable to land.
  */
-export default function ClosingSection() {
+export default function ClosingSection({
+  waitlist,
+  onActiveChange,
+}: {
+  /** The email form, which comes to rest here under the line below. */
+  waitlist?: React.ReactNode;
+  /** Told when the section is the one being read, so the bar at the foot of the
+   *  window can stand down and leave the form to this one. */
+  onActiveChange?: (active: boolean) => void;
+}) {
   const ref = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const [burst, setBurst] = useState(false);
@@ -61,6 +70,22 @@ export default function ClosingSection() {
     return () => io.disconnect();
   }, []);
 
+  // Half the section on screen means the reader is here rather than passing
+  // through, which is when the form belongs in the middle of it.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !onActiveChange) return;
+
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => onActiveChange(e.isIntersecting)), {
+      threshold: 0.5,
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      onActiveChange(false);
+    };
+  }, [onActiveChange]);
+
   return (
     <section
       ref={ref}
@@ -72,7 +97,7 @@ export default function ClosingSection() {
       // movement anywhere over the section now sets it off.
       onPointerEnter={() => setBurst(true)}
       onPointerMove={() => setBurst(true)}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-44 text-center"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 text-center"
     >
       <OrbitField spread={reduceMotion ? undefined : spread} opacity={reduceMotion ? undefined : opacity} />
 
@@ -94,6 +119,8 @@ export default function ClosingSection() {
       >
         Join the waitlist below.
       </motion.p>
+
+      {waitlist}
     </section>
   );
 }

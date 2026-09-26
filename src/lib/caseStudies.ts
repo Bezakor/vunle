@@ -40,7 +40,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'carrey',
-    avatar: '/case-studies/profile_06-JC-jim-carrey.jpg',
+    avatar: '/case-studies/profile_02-jc-JIM-CAREY.jpg',
     name: 'Jim Carrey',
     title: 'Film Star, Comedian',
     initials: 'JC',
@@ -52,7 +52,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     id: 'blakely',
-    avatar: '/case-studies/profile_07-SB-sara-blakely.jpg',
+    avatar: '/case-studies/profile_06-sb-SARA-BLAKEY.jpg',
     name: 'Sara Blakely',
     title: 'Entrepreneur, Inventor',
     initials: 'SB',

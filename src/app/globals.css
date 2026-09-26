@@ -75,6 +75,63 @@ body {
   outline-offset: 3px;
 }
 
+/* --- top menu --- */
+
+.top-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-nav__link {
+  font: inherit;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  /* Pale rather than transparent: these links pass over the case studies'
+     footage, where ink alone would be unreadable. */
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.top-nav__link:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  background: #ffffff;
+}
+
+/* A phone has no room for the three labels beside the wordmark, so they take
+   their own centred row just below it. Sections whose own contents start at the
+   top of the screen leave room for that row — see .cs-pin below. */
+@media (max-width: 640px) {
+  .top-nav {
+    /* Clear of the wordmark above it, which ends at 42px on a phone. */
+    top: 46px;
+    right: 0;
+    left: 0;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .top-nav__link {
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+  }
+}
+
 /* The wordmark set inline in a sentence. Sized to the cap height of the type
    around it rather than to a fixed pixel size, so it tracks the chapter type at
    every breakpoint, and nudged down to sit on the baseline with the letters. */
@@ -156,6 +213,7 @@ body {
   .site-logo {
     top: 12px;
     left: 12px;
+    padding: 4px;
   }
 
   .site-logo__img {
@@ -318,10 +376,6 @@ body {
    breathing room, and the portrait a little of its size, so the last line of a
    long quote stays on the card. */
 @media (max-width: 480px) and (min-height: 621px) {
-  .cs-pin {
-    padding-top: 2.5rem;
-  }
-
   .cs-pin .eyebrow {
     margin-bottom: 1rem;
   }
@@ -330,10 +384,6 @@ body {
     margin-bottom: 0.75rem;
   }
 
-  .cs-avatar {
-    height: 8.5em;
-    width: 8.5em;
-  }
 }
 
 /* Screens too short to give the card a full window — an old 568px phone. The
@@ -344,9 +394,8 @@ body {
     font-size: min(clamp(8px, 1.52vh, 16px), 3.2vw, 16px);
   }
 
-  .cs-avatar {
-    height: 7.5em;
-    width: 7.5em;
+  .cs-pin .cs-names {
+    display: none;
   }
 
   .cs-pin .cs-dots {
@@ -710,5 +759,39 @@ body {
   .chapter-spin,
   .chapter-upright {
     animation: none;
+  }
+}
+
+/* The pinned case studies begin at the top of the screen, which on a phone is
+   where the menu's second row sits. Everything else on the page starts far
+   enough down the section to clear it on its own. */
+/* A phone, where the menu takes a row of its own directly over this section.
+   Everything around the card gives up a little so the card keeps its height:
+   the quotes are the section, and a clipped last line is the one thing that
+   must not happen. */
+@media (max-width: 640px) {
+  .cs-pin {
+    padding-top: 4.5rem;
+    /* Still clear of the waitlist bar, which stands about 108px tall from the
+       bottom of the window. */
+    padding-bottom: 7.5rem;
+  }
+
+  /* The arrow directly below says the same thing as the worded link. */
+  .cs-skip-link {
+    display: none;
+  }
+
+  .cs-pin .cs-dots {
+    margin-top: 0.75rem;
+  }
+
+  .cs-pin .arrow-button {
+    margin-top: 0.5rem;
+  }
+
+  .cs-avatar {
+    height: 8em;
+    width: 8em;
   }
 }

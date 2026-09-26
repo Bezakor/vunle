@@ -98,6 +98,7 @@ export default function HowItWorks() {
 
   return (
     <section
+      id="how-it-works"
       data-snap=""
       // Still a target to land on, but not one the page is pulled out of: see
       // the free-scroll rule in ScrollSnapController.

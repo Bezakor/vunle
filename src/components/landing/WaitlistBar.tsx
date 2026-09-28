@@ -95,9 +95,9 @@ export default function WaitlistBar({
                   disabled={status === 'loading'}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="shrink-0 rounded-full bg-[var(--ink)] px-4 py-3 text-[10px] font-medium tracking-wide text-white transition-colors hover:bg-black disabled:opacity-60 sm:px-6 sm:text-xs"
+                  className="shrink-0 rounded-full bg-[var(--ink)] px-4 py-3 text-xs font-medium tracking-wide text-white transition-colors hover:bg-black disabled:opacity-60 sm:px-6"
                 >
-                  {status === 'loading' ? 'Joining…' : 'Join the waitlist'}
+                  {status === 'loading' ? 'Joining…' : 'I am ready!'}
                 </motion.button>
               </motion.form>
             )}

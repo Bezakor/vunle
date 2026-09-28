@@ -45,16 +45,16 @@ export default function OrbitHero({
     <section ref={sectionRef} data-snap="" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
       <OrbitField />
 
-      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
+      <div className="relative z-10 flex w-full max-w-3xl flex-col items-center text-center">
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.12 }}
-          className="max-w-2xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-5xl"
+          className="max-w-3xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-5xl"
         >
-          Personal goals need
+          You can change your life.
           <br />
-          personal visualizations
+          Just listen.
         </motion.h1>
 
         <motion.p
@@ -82,7 +82,7 @@ export default function OrbitHero({
           className="mt-12 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
         >
           <span className="max-w-[16rem] text-[10px] uppercase tracking-[0.22em] text-balance sm:max-w-none sm:tracking-[0.28em]">
-            You can change your life! Here&apos;s how&hellip;
+            Here&rsquo;s how&hellip;
           </span>
           <span aria-hidden className="arrow-button">
             <span className="animate-bounce-gentle block text-xs">↓</span>

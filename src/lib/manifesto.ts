@@ -69,10 +69,10 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'wants',
     lines: [
-      'Maybe you want to improve your self belief, become more confident,',
-      'more grateful, more successful, more content, achieve a life long goal,',
-      'get something you want,',
-      'or become someone you know you can be.',
+      'Vunle combines proven visualisation methods including',
+      'PETTLEP imagery, Best Possible Self and Mental Contrasting,',
+      'used by performance athletes and brain coaches',
+      'to create a future you can vividly see, feel and rehearse.',
     ],
   },
   {

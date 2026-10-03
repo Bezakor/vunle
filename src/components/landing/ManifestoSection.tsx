@@ -166,7 +166,11 @@ export default function ManifestoSection({
       ref={ref}
       id={id}
       data-snap=""
-      className="relative flex min-h-[85vh] items-center justify-center px-6 py-24"
+      // The arrow sits at a fixed offset from the bottom, so its band is
+      // reserved here rather than left for the words to grow into: a chapter
+      // long enough to wrap past six lines was otherwise centring itself right
+      // through the arrow.
+      className="relative flex min-h-[85vh] items-center justify-center px-6 pt-24 pb-44 md:pb-48"
     >
       <ChapterAssets progress={scrollYProgress} index={index} />
 

@@ -6,7 +6,7 @@ import { scrollToId } from '@/lib/smoothScroll';
 const LINKS = [
   { id: 'how-it-works', label: 'How it works' },
   { id: 'case-studies', label: 'Famous case studies' },
-  { id: 'closing-cta', label: 'Signup' },
+  { id: 'closing-cta', label: 'Try it now' },
 ];
 
 /**

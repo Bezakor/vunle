@@ -11,6 +11,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import OrbitField from './OrbitField';
+import PricingCards from './PricingCards';
 
 /**
  * The closing call to action. Hovering it bursts the landing page's assets out
@@ -23,16 +24,7 @@ import OrbitField from './OrbitField';
  * 70vh the page bottomed out 270px short, leaving the section unable to settle
  * and the arrow above it unable to land.
  */
-export default function ClosingSection({
-  waitlist,
-  onActiveChange,
-}: {
-  /** The email form, which comes to rest here under the line below. */
-  waitlist?: React.ReactNode;
-  /** Told when the section is the one being read, so the bar at the foot of the
-   *  window can stand down and leave the form to this one. */
-  onActiveChange?: (active: boolean) => void;
-}) {
+export default function ClosingSection() {
   const ref = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
   const [burst, setBurst] = useState(false);
@@ -70,34 +62,22 @@ export default function ClosingSection({
     return () => io.disconnect();
   }, []);
 
-  // Half the section on screen means the reader is here rather than passing
-  // through, which is when the form belongs in the middle of it.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !onActiveChange) return;
-
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => onActiveChange(e.isIntersecting)), {
-      threshold: 0.5,
-    });
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      onActiveChange(false);
-    };
-  }, [onActiveChange]);
-
   return (
     <section
       ref={ref}
       id="closing-cta"
       data-snap=""
+      // The two cards make this taller than the window on a phone, so it is a
+      // place to land but not one the page is pulled out of — the same rule the
+      // steps section follows.
+      data-snap-free=""
       // pointermove as well as pointerenter: scrolling the section up to a
       // stationary cursor never crosses its boundary, so enter alone left the
       // burst waiting until the pointer happened to leave and come back. Any
       // movement anywhere over the section now sets it off.
       onPointerEnter={() => setBurst(true)}
       onPointerMove={() => setBurst(true)}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 text-center"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-24 text-center md:pt-24"
     >
       <OrbitField spread={reduceMotion ? undefined : spread} opacity={reduceMotion ? undefined : opacity} />
 
@@ -117,10 +97,10 @@ export default function ClosingSection({
         transition={{ duration: 0.9, delay: 0.25 }}
         className="relative z-10 mt-5 text-sm text-[var(--ink-soft)]"
       >
-        Join the waitlist below.
+        Pick where you want to start.
       </motion.p>
 
-      {waitlist}
+      <PricingCards />
     </section>
   );
 }

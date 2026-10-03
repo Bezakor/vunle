@@ -95,21 +95,19 @@ body {
   white-space: nowrap;
   padding: 6px 12px;
   border-radius: 9999px;
-  border: 1px solid var(--line);
-  /* Pale rather than transparent: these links pass over the case studies'
-     footage, where ink alone would be unreadable. */
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: var(--ink-soft);
+  border: 1px solid var(--ink);
+  /* Solid ink: it reads as a button on paper, and holds its own over the case
+     studies' footage, where a pale chip was the only other way to stay
+     legible against a dark frame and a bright one alike. */
+  background: var(--ink);
+  color: var(--paper);
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s, background-color 0.2s;
 }
 
 .top-nav__link:hover {
-  color: var(--ink);
-  border-color: var(--line-strong);
-  background: #ffffff;
+  background: #000000;
+  border-color: #000000;
 }
 
 /* A phone has no room for the three labels beside the wordmark, so they take

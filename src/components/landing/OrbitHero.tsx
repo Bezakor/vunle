@@ -50,14 +50,10 @@ export default function OrbitHero({
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.12 }}
-          // A longer headline than the page opened with, so it steps down a
-          // size at the top end and the first sentence is left to wrap where it
-          // balances rather than being broken by hand.
+          // One sentence, left to break where it balances rather than by hand.
           className="max-w-3xl text-2xl leading-[1.15] font-normal tracking-tight text-balance text-[var(--ink)] sm:text-3xl xl:text-4xl"
         >
-          You were born with the power to get what you want.
-          <br />
-          It starts here.
+          Feel calm, focused and ready for your next big moment
         </motion.h1>
 
         <motion.p
@@ -68,7 +64,7 @@ export default function OrbitHero({
           // broken across two with a single word stranded on the second.
           className="mt-7 max-w-xl text-sm leading-relaxed text-[var(--ink-soft)] sm:max-w-none sm:whitespace-nowrap md:text-base"
         >
-          Create your own guided audio journey for your specific goals.
+          A guided audio to visualise and prepare you for your specific goal
         </motion.p>
 
         {waitlist}

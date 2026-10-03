@@ -169,14 +169,16 @@ export default function HowItWorks() {
         transition={{ duration: 0.8, delay: 0.7 }}
         className="absolute bottom-32 md:bottom-36 left-1/2 -translate-x-1/2"
       >
+        {/* Label and ring in one button, the way the hero's hint is, so the
+            words are as clickable as the arrow under them. */}
         <button
           type="button"
           onClick={goNext}
-          aria-label="Go to the next section"
-          className="arrow-button"
+          className="flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
         >
-          <span aria-hidden className="animate-bounce-gentle block text-sm">
-            ↓
+          <span className="text-[10px] uppercase tracking-[0.28em]">Try it now</span>
+          <span aria-hidden className="arrow-button">
+            <span className="animate-bounce-gentle block text-sm">↓</span>
           </span>
         </button>
       </motion.div>

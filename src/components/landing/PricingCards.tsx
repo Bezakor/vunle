@@ -15,12 +15,12 @@ function Tick() {
 
 const BADGE_ICON = {
   star: (
-    <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor" aria-hidden>
+    <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" aria-hidden>
       <path d="M8 1.6l1.76 3.9 4.24.45-3.17 2.86.9 4.19L8 10.86 4.27 13l.9-4.19L2 5.95l4.24-.45L8 1.6z" />
     </svg>
   ),
   trend: (
-    <svg viewBox="0 0 16 16" width="10" height="10" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="11" height="11" fill="none" aria-hidden>
       <path d="M1.8 11.4l4-4.2 2.7 2.5 5.7-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M10.6 3.7h3.6v3.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>

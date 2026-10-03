@@ -45,25 +45,25 @@ export default function OrbitHero() {
           transition={{ duration: 1, ease: 'easeOut', delay: 0.4 }}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className="mt-10 cursor-pointer rounded-full bg-[var(--ink)] px-9 py-4 text-xs font-medium tracking-wide text-white transition-colors hover:bg-black"
+          className="hero-cta hero-cta--primary mt-8"
         >
           Try it now
         </motion.button>
 
+        {/* The second way in, the same size as the first and right under it:
+            the page itself, rather than the offer at the end of it. */}
         <motion.button
           type="button"
           onClick={() => scrollToId('manifesto-start')}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.1 }}
-          className="mt-12 flex cursor-pointer flex-col items-center gap-2 text-[var(--ink)] transition-opacity hover:opacity-60"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.62 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="hero-cta hero-cta--ghost mt-3"
         >
-          <span className="max-w-[16rem] text-[10px] uppercase tracking-[0.22em] text-balance sm:max-w-none sm:tracking-[0.28em]">
-            Here&rsquo;s how&hellip;
-          </span>
-          <span aria-hidden className="arrow-button">
-            <span className="animate-bounce-gentle block text-xs">↓</span>
-          </span>
+          Here&rsquo;s how
+          <span aria-hidden className="animate-bounce-gentle">↓</span>
         </motion.button>
       </div>
     </section>

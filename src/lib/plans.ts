@@ -9,36 +9,38 @@ export interface Plan {
   includes: string[];
   /** The one we point people at. Selected when the section opens. */
   featured?: boolean;
-  badge?: string;
+  /** The marks above the name on the featured card. */
+  badges?: { icon: 'star' | 'trend'; label: string }[];
   cta: string;
 }
 
 export const plans: Plan[] = [
   {
-    id: 'full-life-reframe',
-    name: 'The Full Life Reframe',
+    id: 'complete-life-reframing',
+    name: 'Complete Life Reframing',
     price: '$1,497',
-    summary: 'Every part of your life, rehearsed together.',
+    summary: 'Five goals, rehearsed together.',
     delivery: 'Delivered in 5–7 days',
     cta: 'Start the full reframe',
     includes: [
-      'Everything in One Goal Clarity, across five goals',
       'Five custom audio guides: your professional life, your relationships and social standing, a morning meditation, mental focus and confidence, an evening meditation',
       'An extended personalised assessment covering all five',
       'Two tracks of each — one scored with ambient, meditative sound, one clean voice only',
       'Every script written out as a PDF',
-      'Five repeatable affirmations, each with a phone screensaver',
       'The full research-backed methodology, with the rationale behind every choice, as a PDF',
     ],
   },
   {
-    id: 'one-goal-clarity',
-    name: 'One Goal Clarity',
+    id: 'single-goal-focus',
+    name: 'Single Goal Focus',
     price: '$97',
-    summary: 'One moment — the presentation, the race, the room — rehearsed until it feels familiar.',
+    summary: 'One moment, rehearsed until it feels familiar.',
     delivery: 'Same-day download',
     featured: true,
-    badge: 'Recommended',
+    badges: [
+      { icon: 'star', label: 'Recommended' },
+      { icon: 'trend', label: 'Most purchased' },
+    ],
     cta: 'Start with one goal',
     includes: [
       'A personalised assessment',

@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
   variable: "--font-jetbrains",
+  display: "swap",
+});
+
+/**
+ * The one place the page leaves its monospace: the names and prices on the
+ * package cards, where a heavier, wider face does the work mono cannot — it
+ * carries weight without shouting, and it still reads as the same family of
+ * design because its shapes are as geometric as the mono's.
+ */
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-grotesk",
   display: "swap",
 });
 
@@ -49,7 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${jetbrainsMono.variable} font-mono antialiased`}>{children}</body>
+      <body className={`${jetbrainsMono.variable} ${spaceGrotesk.variable} font-mono antialiased`}>{children}</body>
     </html>
   );
 }

@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { caseStudies, type CaseStudy } from '@/lib/caseStudies';
+import { scrollToId, scrollToY } from '@/lib/smoothScroll';
 
 const AVATAR_GRADIENTS = [
   'radial-gradient(circle at 30% 30%, #b7a5ff, #4b3f7a 75%)',
@@ -35,7 +36,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
       // in em resolves against the element's own font-size, so scaling the
       // initials on this div would scale the disc with them.
       <div
-        className="flex h-[10em] w-[10em] shrink-0 items-center justify-center rounded-full font-medium text-white"
+        className="cs-avatar flex shrink-0 items-center justify-center rounded-full font-medium text-white"
         style={{ background: gradient }}
       >
         <span className="text-[1.5em]">{study.initials}</span>
@@ -52,7 +53,7 @@ function Avatar({ study, index }: { study: CaseStudy; index: number }) {
       height={160}
       loading="lazy"
       onError={() => setFailed(true)}
-      className="h-[10em] w-[10em] shrink-0 rounded-full object-cover"
+      className="cs-avatar shrink-0 rounded-full object-cover"
       style={{ background: gradient }}
     />
   );
@@ -98,11 +99,11 @@ export default function CaseStudiesCarousel() {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const top = wrapper.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
+    scrollToY(top + i * window.innerHeight);
   }, []);
 
   const scrollToSection = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId(id);
   }, []);
 
   // The arrows stay available on the first and last cards: instead of dead-ending,
@@ -133,11 +134,28 @@ export default function CaseStudiesCarousel() {
     }
   };
 
+  // On a phone the name row scrolls sideways, so keep the current name in view
+  // as the cards change — otherwise it sits off the edge and the row looks
+  // stuck on whoever it started with.
+  const namesRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // Scrolled by hand rather than with scrollIntoView: on a name that is
+    // partly out of view vertically, scrollIntoView moves the page as well as
+    // the row, which would fight the jump that just started.
+    const row = namesRef.current;
+    const active = row?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!row || !active) return;
+    row.scrollTo({
+      left: active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2,
+      behavior: 'smooth',
+    });
+  }, [state.index]);
+
   const study = caseStudies[state.index];
   const offset = reduceMotion ? 0 : 36;
 
   return (
-    <section ref={wrapperRef} className="relative" style={{ height: `${N * 100}vh` }}>
+    <section ref={wrapperRef} id="case-studies" className="relative" style={{ height: `${N * 100}vh` }}>
       {/* One snap marker per card, so the page eases onto a card rather than
           resting between two of them. */}
       {caseStudies.map((s, i) => (
@@ -171,16 +189,13 @@ export default function CaseStudiesCarousel() {
               style={{ width: 'max(100vw, 177.78vh)', height: 'max(100vh, 56.25vw)' }}
             />
           )}
-          {/* White scrim over the footage, then a grid of white dots on top of
-              it. Held just short of fully opaque on purpose: at a true 1.0 the
-              video would be covered completely and the white dots would have
-              nothing to read against. --cs-scrim in globals.css is the knob. */}
+          {/* A light wash over the footage rather than a cover for it —
+              --cs-scrim in globals.css is the knob. */}
           <div className="absolute inset-0 backdrop-blur-[2px]" />
           <div className="cs-scrim absolute inset-0" />
-          <div className="dot-grid absolute inset-0" />
         </div>
 
-        <p className="eyebrow mb-8 flex items-center justify-center gap-3">
+        <p className="eyebrow cs-chip mb-6 flex shrink-0 items-center justify-center gap-3">
           <span>Case studies</span>
           <span aria-hidden className="text-[var(--line-strong)]">/</span>
           {/* Announced politely rather than on every scroll tick, so a screen
@@ -190,7 +205,33 @@ export default function CaseStudiesCarousel() {
           </span>
         </p>
 
-        <div className="relative w-full max-w-xl">
+        {/* Jump straight to whoever you came for. The row itself is the scroller
+            and `relative` makes it the offset parent the effect above measures
+            against; the inner track centres the names with auto margins, which
+            collapse to nothing once there are too many to fit — centring the
+            flex items directly would instead overflow to both sides and leave
+            the first name unreachable. */}
+        <nav
+          ref={namesRef}
+          aria-label="Case studies"
+          className="cs-names relative mb-5 w-full max-w-5xl shrink-0 overflow-x-auto px-1"
+        >
+          <div className="mx-auto flex w-max items-center gap-2">
+            {caseStudies.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => scrollToCard(i)}
+                aria-current={i === state.index ? 'true' : undefined}
+                className={`cs-name-btn ${i === state.index ? 'is-active' : ''}`}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <div className="cs-frame relative w-full max-w-xl">
           <button
             type="button"
             onClick={handlePrev}
@@ -239,7 +280,7 @@ export default function CaseStudiesCarousel() {
           </button>
         </div>
 
-        <div className="mt-6 flex items-center gap-2">
+        <div className="cs-chip cs-dots mt-6 flex shrink-0 items-center gap-2">
           {caseStudies.map((s, i) => (
             <button
               key={s.id}
@@ -258,9 +299,9 @@ export default function CaseStudiesCarousel() {
         <button
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
-          className="cs-skip-link mt-6 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
+          className="cs-skip-link cs-chip mt-6 shrink-0 text-[10px] uppercase tracking-[0.25em] text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]"
         >
-          Skip the case studies
+          But here&rsquo;s the big problem&hellip;
         </button>
 
         {/* The same arrow the chapters carry, so leaving this section works the
@@ -269,7 +310,7 @@ export default function CaseStudiesCarousel() {
           type="button"
           onClick={() => scrollToSection('manifesto-continue')}
           aria-label="Go to the next section"
-          className="cursor-pointer p-3 text-[var(--ink)] transition-opacity hover:opacity-60"
+          className="arrow-button mt-4"
         >
           <span aria-hidden className="animate-bounce-gentle block text-sm">
             ↓

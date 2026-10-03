@@ -1,3 +1,10 @@
+/**
+ * `[logo]` anywhere in a line is replaced by the wordmark, set to the height of
+ * the surrounding type. It falls back to the word "Vunle" when there is no logo
+ * file, so the sentence always reads.
+ */
+export const LOGO_TOKEN = '[logo]';
+
 export interface ManifestoBeat {
   id: string;
   lines: string[];
@@ -28,7 +35,7 @@ export const manifesto: ManifestoBeat[] = [
       'They use guided visualizations every single day.',
       'They rehearse the future in their mind until it feels familiar —',
       'and the body follows.',
-      "Here's 5 case studies…",
+      "Here's 7 case studies…",
     ],
   },
   {
@@ -52,7 +59,7 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'exists',
     lines: [
-      'That’s why Vunle exists.',
+      'That’s why [logo] exists.',
       'Vunle creates a guided visualization made only for you.',
       'Here’s how it works…',
     ],
@@ -62,10 +69,10 @@ export const manifesto: ManifestoBeat[] = [
   {
     id: 'wants',
     lines: [
-      'Maybe you want to improve your self belief, become more confident,',
-      'more grateful, more successful, more content, achieve a life long goal,',
-      'get something you want,',
-      'or become someone you know you can be.',
+      'Vunle combines proven visualisation methods including',
+      'PETTLEP imagery, Best Possible Self and Mental Contrasting,',
+      'used by performance athletes and brain coaches',
+      'to create a future you can vividly see, feel and rehearse.',
     ],
   },
   {

@@ -9,7 +9,8 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import OrbitHero from '@/components/landing/OrbitHero';
 import ScrollProgressBar from '@/components/landing/ScrollProgressBar';
 import ScrollSnapController from '@/components/landing/ScrollSnapController';
-import WaitlistBar from '@/components/landing/WaitlistBar';
+import SiteLogo from '@/components/landing/SiteLogo';
+import TopNav from '@/components/landing/TopNav';
 
 const splitIndex = manifesto.findIndex((beat) => beat.id === 'athletes') + 1;
 const manifestoBeforeCaseStudies = manifesto.slice(0, splitIndex);
@@ -22,6 +23,9 @@ export default function Home() {
     <div className="relative min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <ScrollSnapController />
       <ScrollProgressBar targetRef={manifestoJourneyRef} />
+
+      <SiteLogo />
+      <TopNav />
 
       <OrbitHero />
 
@@ -61,8 +65,6 @@ export default function Home() {
       <HowItWorks />
 
       <ClosingSection />
-
-      <WaitlistBar />
     </div>
   );
 }

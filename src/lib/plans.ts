@@ -74,7 +74,7 @@ export const plans: Plan[] = [
       'A personalised assessment',
       'Custom goal setting',
       'A sub-four-minute audio guide',
-      'Built on proven methods: PETTLEP imagery, Mental Contrasting and professional WHOOP methodology',
+      'Built on proven methods: PETTLEP imagery, Mental Contrasting and the WOOP protocol',
       'Two audio tracks — one scored with ambient, meditative sound, one clean voice only',
       'Your script written out as a PDF',
       'Review and approve your audio guide before completion',

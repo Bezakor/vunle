@@ -53,7 +53,7 @@ export const plans: Plan[] = [
     name: 'Single Goal Focus',
     price: '$97',
     was: '$397',
-    saving: 'Save 86.08% off',
+    saving: 'Save 87.78% off',
     priceNote: 'Plus a second Single Goal Focus guide free — a total saving of $697',
     summary: 'One moment, rehearsed daily.',
     delivery: 'Same-day download',

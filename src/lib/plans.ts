@@ -7,6 +7,8 @@ export interface Plan {
   was?: string;
   /** The line under the price, for what the discount carries with it. */
   priceNote?: string;
+  /** Picked out beside the price. */
+  saving?: string;
   /** One line on who it is for, under the name. */
   summary: string;
   delivery: string;
@@ -51,6 +53,7 @@ export const plans: Plan[] = [
     name: 'Single Goal Focus',
     price: '$97',
     was: '$397',
+    saving: 'Save 86.08% off',
     priceNote: 'Plus a second Single Goal Focus guide free — a total saving of $697',
     summary: 'One moment, rehearsed daily.',
     delivery: 'Same-day download',
@@ -66,7 +69,7 @@ export const plans: Plan[] = [
     },
     cta: 'Start with one goal',
     formUrl:
-      'https://docs.google.com/forms/d/e/1FAIpQLSeiLWF2AfLlKXR8jNhLuN-inQ0QZ6z-lYbABhHlzFlnEuPH1g/viewform?embedded=true',
+      'https://docs.google.com/forms/d/e/1FAIpQLSe_eurb9sNHFnkYK1SHOrm0Xk9ve_aKTsjeS9NVJIXm8rUy1g/viewform?embedded=true',
     includes: [
       'A personalised assessment',
       'Custom goal setting',

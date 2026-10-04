@@ -10,7 +10,8 @@ const LOGO_CENTRE_Y = 34;
 
 /**
  * The mark in the top corner, present on every part of the page and always a
- * way back to the top.
+ * way back: to the top of the landing page, or — given `href` — to the site it
+ * belongs to, which is what the pages away from the landing page want.
  *
  * It draws the wordmark as text until there is a file in public/brand, and
  * falls back to the same text if that file ever fails to load, so the corner is
@@ -20,7 +21,7 @@ const LOGO_CENTRE_Y = 34;
  * behind it. Both files are rendered and cross-faded rather than swapping the
  * `src`, which would blink on the first change while the new one loaded.
  */
-export default function SiteLogo() {
+export default function SiteLogo({ href }: { href?: string }) {
   const [failed, setFailed] = useState(false);
   const [onDark, setOnDark] = useState(false);
 
@@ -53,23 +54,30 @@ export default function SiteLogo() {
   // corner over the video.
   const white = LOGO_WHITE_SRC ?? LOGO_SRC;
 
+  const mark = showImage ? (
+    <span className="site-logo__stack">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={LOGO_SRC!} alt="Vunle" className="site-logo__img" onError={() => setFailed(true)} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={white!} alt="" aria-hidden className="site-logo__img site-logo__img--white" />
+    </span>
+  ) : (
+    <span className="site-logo__text">Vunle</span>
+  );
+
+  const className = `site-logo ${onDark ? 'is-on-dark' : ''}`;
+
+  if (href) {
+    return (
+      <a href={href} aria-label="Vunle — home" className={className}>
+        {mark}
+      </a>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      onClick={() => scrollToY(0)}
-      aria-label="Vunle — back to the top"
-      className={`site-logo ${onDark ? 'is-on-dark' : ''}`}
-    >
-      {showImage ? (
-        <span className="site-logo__stack">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC!} alt="Vunle" className="site-logo__img" onError={() => setFailed(true)} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={white!} alt="" aria-hidden className="site-logo__img site-logo__img--white" />
-        </span>
-      ) : (
-        <span className="site-logo__text">Vunle</span>
-      )}
+    <button type="button" onClick={() => scrollToY(0)} aria-label="Vunle — back to the top" className={className}>
+      {mark}
     </button>
   );
 }

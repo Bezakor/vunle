@@ -50,12 +50,12 @@ export default function OrbitHero() {
           Try it now
         </motion.button>
 
-        {/* The second way in, the same size as the first and right under it.
-            It names what it opens — the case studies — so it goes there rather
-            than to the top of the manifesto. */}
+        {/* The second way in, the same size as the first and right under it:
+            it starts the reader down the page rather than jumping them past
+            it, so it goes to the first chapter. */}
         <motion.button
           type="button"
-          onClick={() => scrollToId('case-studies')}
+          onClick={() => scrollToId('manifesto-start')}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.62 }}

@@ -30,15 +30,18 @@ const BADGE_ICON = {
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /**
- * The clock above the cards. It starts when the visit does and is kept in
- * sessionStorage, so it carries on where it was across a reload or a trip to
- * the brief and back rather than springing back to twenty minutes each time.
- * It runs down to zero and stays there for the rest of the visit.
+ * The time left on the offer, as mm:ss, or null until it has been read.
  *
- * Nothing is rendered until it has read the clock: the time left is not
- * knowable on the server, and rendering a guess would mismatch on hydration.
+ * It starts when the visit does and is kept in sessionStorage, so it carries
+ * on where it was across a reload or a trip to the brief and back rather than
+ * springing back to twenty minutes each time. It runs down to zero and stays
+ * there for the rest of the visit.
+ *
+ * Null until the effect runs, because the time left is not knowable on the
+ * server and rendering a guess would mismatch on hydration. Both places the
+ * clock appears read this one hook, so they cannot disagree.
  */
-function OfferClock({ minutes }: { minutes: number }) {
+function useOfferCountdown(minutes: number) {
   const [msLeft, setMsLeft] = useState<number | null>(null);
 
   useEffect(() => {
@@ -68,8 +71,14 @@ function OfferClock({ minutes }: { minutes: number }) {
   }, [minutes]);
 
   if (msLeft === null) return null;
-
   const total = Math.floor(msLeft / 1000);
+  return total > 0 ? `${pad(Math.floor(total / 60))}:${pad(total % 60)}` : null;
+}
+
+/** The clock above the cards, in the accent so it is seen before it is read. */
+function OfferClock({ minutes }: { minutes: number }) {
+  const left = useOfferCountdown(minutes);
+  if (!left) return null;
 
   return (
     <motion.p
@@ -85,11 +94,25 @@ function OfferClock({ minutes }: { minutes: number }) {
         <path d="M6.2 1.6h3.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
       <span>Discounted price + a second goal free</span>
-      <span aria-hidden className="offer-clock__rule" />
-      <span className="offer-clock__time">
-        {total > 0 ? `${pad(Math.floor(total / 60))}:${pad(total % 60)}` : 'Ending now'}
-      </span>
+      <span className="offer-clock__time">{left}</span>
     </motion.p>
+  );
+}
+
+/** The same clock again, inside the bonus it is counting down. */
+function CalloutClock({ minutes }: { minutes: number }) {
+  const left = useOfferCountdown(minutes);
+  if (!left) return null;
+
+  return (
+    <span className="price-card__callout-clock">
+      <svg viewBox="0 0 16 16" width="11" height="11" fill="none" aria-hidden>
+        <circle cx="8" cy="8.6" r="5.6" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8 5.6v3.2l2 1.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6.2 1.6h3.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+      Ends in <span className="price-card__callout-time">{left}</span>
+    </span>
   );
 }
 
@@ -149,6 +172,7 @@ export default function PricingCards() {
                 <p className="price-card__price">
                   {plan.was && <span className="price-card__was">{plan.was}</span>}
                   {plan.price}
+                  {plan.saving && <span className="price-card__saving">{plan.saving}</span>}
                 </p>
                 <p className="price-card__delivery">{plan.delivery}</p>
                 {plan.priceNote && <p className="price-card__note">{plan.priceNote}</p>}
@@ -163,10 +187,11 @@ export default function PricingCards() {
                 </ul>
 
                 {plan.callout && (
-                  <p className="price-card__callout">
+                  <div className="price-card__callout">
                     <span className="price-card__callout-label">{plan.callout.label}</span>
-                    {plan.callout.body}
-                  </p>
+                    <p>{plan.callout.body}</p>
+                    {plan.offerMinutes && <CalloutClock minutes={plan.offerMinutes} />}
+                  </div>
                 )}
               </div>
 

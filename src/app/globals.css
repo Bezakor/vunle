@@ -128,7 +128,108 @@ body {
   }
 }
 
+/* --- the hero's two buttons --- */
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  border-radius: 9999px;
+  border: 1px solid var(--ink);
+  padding: 15px 34px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.hero-cta--primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hero-cta--primary:hover {
+  background: #000000;
+  border-color: #000000;
+}
+
+/* The quieter of the two, on the paper rather than in the ink. */
+.hero-cta--ghost {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.hero-cta--ghost:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+}
+
+@media (max-width: 480px) {
+  .hero-cta {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+}
+
 /* --- price cards --- */
+
+/* The clock above the cards. */
+.offer-clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 9px 18px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 10px 30px rgba(245, 158, 11, 0.16);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+
+.offer-clock__icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+.offer-clock__rule {
+  width: 1px;
+  height: 11px;
+  background: var(--line-strong);
+}
+
+/* Tabular so the seconds do not shuffle the line as they count. */
+.offer-clock__time {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+}
+
+.price-cards {
+  display: grid;
+  gap: 1.5rem;
+  /* Room above the cards for the marks that float there. */
+  margin-top: 3.25rem;
+}
+
+@media (min-width: 768px) {
+  .price-cards {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
 
 .price-card {
   position: relative;
@@ -168,6 +269,15 @@ body {
   box-shadow: 0 1px 2px rgba(17, 17, 17, 0.1), 0 26px 60px rgba(17, 17, 17, 0.28);
 }
 
+.price-card__badges {
+  position: absolute;
+  bottom: calc(100% + 0.7rem);
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .price-card__badge {
   display: inline-flex;
   align-items: center;
@@ -181,6 +291,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   white-space: nowrap;
+  /* Lit like the marks they carry. */
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35), 0 0 22px rgba(245, 158, 11, 0.22);
 }
 
 /* The one piece of colour on the page. The glow is drawn on the mark itself
@@ -212,6 +324,10 @@ body {
   font-size: 26px;
   font-weight: 700;
   line-height: 1.1;
+  /* Two lines reserved, as the line below it reserves two: between them they
+     hold the prices on the same line across both cards, whichever name wraps
+     at a given width. */
+  min-height: 2.2em;
   letter-spacing: -0.02em;
   color: var(--ink);
 }
@@ -228,6 +344,7 @@ body {
 
 .price-card__summary {
   margin-top: 0.75rem;
+  min-height: calc(2 * 1.7em);
   font-size: 12px;
   line-height: 1.7;
   color: var(--ink-soft);
@@ -259,6 +376,32 @@ body {
 
 .price-card.is-featured .price-card__price {
   color: var(--paper);
+}
+
+.price-card__was {
+  margin-right: 0.45em;
+  font-size: 0.52em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  color: var(--ink-faint);
+  vertical-align: 0.42em;
+}
+
+.price-card.is-featured .price-card__was {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.price-card__note {
+  margin-top: 0.75rem;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.price-card.is-featured .price-card__note {
+  color: var(--accent);
 }
 
 @media (min-width: 1024px) {
@@ -296,6 +439,33 @@ body {
 
 .price-card.is-featured .price-card__list li {
   color: rgba(255, 255, 255, 0.78);
+}
+
+.price-card__callout {
+  margin-top: 1.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.18) inset, 0 6px 22px rgba(245, 158, 11, 0.16);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.price-card.is-featured .price-card__callout {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.price-card__callout-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 .price-card__cta {
@@ -344,9 +514,73 @@ body {
   top: 20px;
   right: 20px;
   z-index: 45;
+}
+
+/* Ink, like the buttons it opens onto. Solid rather than pale because it rides
+   over the case studies' footage, where a wash would disappear on a bright
+   frame. */
+.top-nav__toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.top-nav__toggle:hover {
+  background: #000000;
+  border-color: #000000;
+}
+
+.top-nav__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 16px;
+}
+
+.top-nav__bars span {
+  display: block;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.22s ease, opacity 0.18s ease;
+}
+
+/* The three bars fold into a cross while the panel is open. */
+.top-nav__toggle.is-open .top-nav__bars span:first-child {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.top-nav__toggle.is-open .top-nav__bars span:nth-child(2) {
+  opacity: 0;
+}
+
+.top-nav__toggle.is-open .top-nav__bars span:last-child {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+.top-nav__panel {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  transform-origin: top right;
+  display: flex;
+  flex-direction: column;
+  min-width: 14rem;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 18px 40px rgba(17, 17, 17, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .top-nav__link {
@@ -355,40 +589,34 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   white-space: nowrap;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  border: 1px solid var(--ink);
-  /* Solid ink: it reads as a button on paper, and holds its own over the case
-     studies' footage, where a pale chip was the only other way to stay
-     legible against a dark frame and a bright one alike. */
-  background: var(--ink);
-  color: var(--paper);
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  transition: color 0.2s, background-color 0.2s;
 }
 
 .top-nav__link:hover {
-  background: #000000;
-  border-color: #000000;
+  color: var(--ink);
+  background: rgba(17, 17, 17, 0.05);
 }
 
-/* A phone has no room for the three labels beside the wordmark, so they take
-   their own centred row just below it. Sections whose own contents start at the
-   top of the screen leave room for that row — see .cs-pin below. */
 @media (max-width: 640px) {
   .top-nav {
-    /* Clear of the wordmark above it, which ends at 42px on a phone. */
-    top: 46px;
-    right: 0;
-    left: 0;
-    justify-content: center;
-    gap: 5px;
+    top: 12px;
+    right: 12px;
   }
 
-  .top-nav__link {
-    font-size: 9px;
-    letter-spacing: 0.05em;
-    padding: 4px 8px;
+  .top-nav__toggle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .top-nav__panel {
+    top: 48px;
   }
 }
 
@@ -652,10 +880,6 @@ body {
 @media (max-height: 620px) {
   .cs-card-scale {
     font-size: min(clamp(8px, 1.52vh, 16px), 3.2vw, 16px);
-  }
-
-  .cs-pin .cs-names {
-    display: none;
   }
 
   .cs-pin .cs-dots {
@@ -1022,24 +1246,23 @@ body {
   }
 }
 
-/* The pinned case studies begin at the top of the screen, which on a phone is
-   where the menu's second row sits. Everything else on the page starts far
-   enough down the section to clear it on its own. */
-/* A phone, where the menu takes a row of its own directly over this section.
-   Everything around the card gives up a little so the card keeps its height:
-   the quotes are the section, and a clipped last line is the one thing that
-   must not happen. */
+/* Shorter than any phone held upright — a handset on its side, or a very old
+   small screen. The names row is the one piece of chrome the card can do
+   without: the dots, the arrows and a swipe all still move between cards. */
+@media (max-height: 500px) {
+  .cs-pin .cs-names {
+    display: none;
+  }
+}
+
+/* A phone, where the chrome around the card has the least room to give. The
+   menu is one button in the corner now and there is no bar across the foot of
+   the window, so the padding that was making way for both comes back to the
+   card — which is the section. */
 @media (max-width: 640px) {
   .cs-pin {
-    padding-top: 4.5rem;
-    /* Still clear of the waitlist bar, which stands about 108px tall from the
-       bottom of the window. */
-    padding-bottom: 7.5rem;
-  }
-
-  /* The arrow directly below says the same thing as the worded link. */
-  .cs-skip-link {
-    display: none;
+    padding-top: 3rem;
+    padding-bottom: 5rem;
   }
 
   .cs-pin .cs-dots {

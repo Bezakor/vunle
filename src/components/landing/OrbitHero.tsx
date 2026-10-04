@@ -32,7 +32,7 @@ export default function OrbitHero() {
           // broken across two with a single word stranded on the second.
           className="mt-7 max-w-xl text-sm leading-relaxed text-[var(--ink-soft)] sm:max-w-none sm:whitespace-nowrap md:text-base"
         >
-          A guided audio to visualise and prepare you for your specific goal
+          Personalised audio meditations to prepare you for your specific goals
         </motion.p>
 
         {/* The page's one call to action, in the middle of the first screen.
@@ -50,11 +50,12 @@ export default function OrbitHero() {
           Try it now
         </motion.button>
 
-        {/* The second way in, the same size as the first and right under it:
-            the page itself, rather than the offer at the end of it. */}
+        {/* The second way in, the same size as the first and right under it.
+            It names what it opens — the case studies — so it goes there rather
+            than to the top of the manifesto. */}
         <motion.button
           type="button"
-          onClick={() => scrollToId('manifesto-start')}
+          onClick={() => scrollToId('case-studies')}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.62 }}
@@ -62,7 +63,7 @@ export default function OrbitHero() {
           whileTap={{ scale: 0.97 }}
           className="hero-cta hero-cta--ghost mt-3"
         >
-          Here&rsquo;s how
+          7 famous case studies
           <span aria-hidden className="animate-bounce-gentle">↓</span>
         </motion.button>
       </div>

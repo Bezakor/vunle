@@ -3,6 +3,10 @@ export interface Plan {
   id: string;
   name: string;
   price: string;
+  /** Struck through beside the price, where one package is discounted. */
+  was?: string;
+  /** The line under the price, for what the discount carries with it. */
+  priceNote?: string;
   /** One line on who it is for, under the name. */
   summary: string;
   delivery: string;
@@ -11,6 +15,10 @@ export interface Plan {
   featured?: boolean;
   /** The marks above the name on the featured card. */
   badges?: { icon: 'star' | 'trend'; label: string }[];
+  /** Picked out at the foot of the list. */
+  callout?: { label: string; body: string };
+  /** Minutes on the clock above the cards, where an offer is time-limited. */
+  offerMinutes?: number;
   cta: string;
   /**
    * The Google Form this package's button opens, embedded on /start. Keep the
@@ -42,6 +50,8 @@ export const plans: Plan[] = [
     id: 'single-goal-focus',
     name: 'Single Goal Focus',
     price: '$97',
+    was: '$397',
+    priceNote: 'Plus a second Single Goal Focus guide free — a total saving of $697',
     summary: 'One moment, rehearsed daily.',
     delivery: 'Same-day download',
     featured: true,
@@ -49,6 +59,11 @@ export const plans: Plan[] = [
       { icon: 'star', label: 'Recommended' },
       { icon: 'trend', label: 'Most purchased' },
     ],
+    offerMinutes: 20,
+    callout: {
+      label: 'Limited time bonus',
+      body: 'An additional Single Goal Focus audio guide, completely free — worth $397 (a total saving of $697).',
+    },
     cta: 'Start with one goal',
     formUrl:
       'https://docs.google.com/forms/d/e/1FAIpQLSeiLWF2AfLlKXR8jNhLuN-inQ0QZ6z-lYbABhHlzFlnEuPH1g/viewform?embedded=true',
@@ -59,6 +74,7 @@ export const plans: Plan[] = [
       'Built on proven methods: PETTLEP imagery, Mental Contrasting and professional WHOOP methodology',
       'Two audio tracks — one scored with ambient, meditative sound, one clean voice only',
       'Your script written out as a PDF',
+      'Review and approve your audio guide before completion',
       'One repeatable affirmation, and a phone screensaver carrying it',
     ],
   },

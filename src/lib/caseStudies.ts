@@ -16,6 +16,17 @@ export interface CaseStudy {
 
 export const caseStudies: CaseStudy[] = [
   {
+    id: 'gaga',
+    avatar: '/case-studies/profile_02-LG-lady-gaga.jpg',
+    name: 'Lady Gaga',
+    title: 'Musician, Artist',
+    initials: 'LG',
+    isQuote: true,
+    headline: 'Acting as if it’s already real.',
+    description:
+      'Early in her career, she visualized her fame and rehearsed performances as though she were already a global icon — anchoring that mental image until it became her reality.',
+  },
+  {
     id: 'jordan',
     avatar: '/case-studies/profile_01-MJ-michael-jordan.jpg',
     name: 'Michael Jordan',
@@ -28,15 +39,28 @@ export const caseStudies: CaseStudy[] = [
       'Treated mental rehearsal as equal to physical training — using visualization to build unwavering self-belief and handle the pressure of game-winning moments.',
   },
   {
-    id: 'gaga',
-    avatar: '/case-studies/profile_02-LG-lady-gaga.jpg',
-    name: 'Lady Gaga',
-    title: 'Musician, Artist',
-    initials: 'LG',
+    id: 'carrey',
+    avatar: '/case-studies/profile_02-jc-JIM-CAREY.jpg',
+    name: 'Jim Carrey',
+    title: 'Film Star, Comedian',
+    initials: 'JC',
     isQuote: true,
-    headline: 'Acting as if it’s already real.',
+    headline:
+      'I would visualize having directors that I respected saying, “I like your work.” I would visualize things I wanted…',
     description:
-      'Early in her career, she visualized her fame and rehearsed performances as though she were already a global icon — anchoring that mental image until it became her reality.',
+      'Before he was one of Hollywood’s biggest stars he pictured the career he wanted — directors valuing his work — and wrote himself a $10 million cheque for “acting services rendered”. Years later his fee for Dumb & Dumber: When Nature Calls reportedly reached that figure.',
+  },
+  {
+    id: 'blakely',
+    avatar: '/case-studies/profile_06-sb-SARA-BLAKEY.jpg',
+    name: 'Sara Blakely',
+    title: 'Entrepreneur, Inventor',
+    initials: 'SB',
+    isQuote: true,
+    headline:
+      'I visualized this for myself. When I was selling copiers door to door, I had a very clear vision of what my life was going to be like.',
+    description:
+      'Years before Spanx existed she got specific about the life she wanted: an idea of her own, sold to millions of people, that made them feel good. When the idea finally appeared she was ready to recognise it — she had rehearsed the future before she knew what it looked like.',
   },
   {
     id: 'robbins-tony',

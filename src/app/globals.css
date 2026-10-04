@@ -9,13 +9,19 @@
   --line: rgba(17, 17, 17, 0.1);
   --line-strong: rgba(17, 17, 17, 0.22);
 
+  /* The page's one colour, kept for the marks on the recommended card. A warm
+     amber reads as a highlight against ink and paper alike without pulling the
+     rest of the monochrome composition out of shape. */
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.8);
+
+
   /* Kept for the app flow screens, which still reference these. */
   --background: var(--paper);
   --foreground: var(--ink);
   --primary: #111111;
   --primary-hover: #000000;
   --secondary: #f4f4f4;
-  --accent: #111111;
   --muted: var(--ink-faint);
 }
 
@@ -36,6 +42,11 @@
 
 html,
 body {
+  /* The one face that isn't the mono: the package cards' names, prices and
+     buttons, and the hero's two buttons. It is declared here rather than on
+     :root because next/font puts --font-grotesk on the body, and a custom
+     property resolves its var() where it is declared. */
+  --font-display: var(--font-grotesk), "Inter", ui-sans-serif, system-ui, sans-serif;
   max-width: 100vw;
   background: var(--paper);
   color: var(--ink);
@@ -73,6 +84,670 @@ body {
 *:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
+}
+
+/* --- the brief --- */
+
+.start-plan-chip {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+
+/* The form sits on Google's origin, so its height cannot be read from here and
+   the frame carries its own. These leave room for the questions to wrap on a
+   narrow screen; past that the frame scrolls rather than cutting anything off. */
+.start-embed {
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 8px;
+}
+
+.start-embed__frame {
+  display: block;
+  width: 100%;
+  height: 820px;
+  border: 0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .start-embed {
+    padding: 4px;
+  }
+
+  .start-embed__frame {
+    height: 1040px;
+  }
+}
+
+/* --- the hero's two buttons --- */
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  border-radius: 9999px;
+  border: 1px solid var(--ink);
+  padding: 15px 34px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.hero-cta--primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hero-cta--primary:hover {
+  background: #000000;
+  border-color: #000000;
+}
+
+/* The quieter of the two, on the paper rather than in the ink. */
+.hero-cta--ghost {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.hero-cta--ghost:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+}
+
+@media (max-width: 480px) {
+  .hero-cta {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+}
+
+/* --- price cards --- */
+
+/* The clock above the cards, on the accent itself so it is seen before it is
+   read. Dark type on it rather than white: amber is a light colour, and white
+   on it would be the one unreadable thing on the page. */
+.offer-clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 9px 10px 9px 18px;
+  border-radius: 9999px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4), 0 0 34px rgba(245, 158, 11, 0.3);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #2a1a00;
+}
+
+.offer-clock__icon {
+  color: #2a1a00;
+}
+
+/* Tabular so the seconds do not shuffle the line as they count. */
+.offer-clock__time {
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #2a1a00;
+  color: #ffd98a;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+.price-cards {
+  display: grid;
+  gap: 1.5rem;
+  /* Room above the cards for the marks that float there. */
+  margin-top: 3.25rem;
+}
+
+@media (min-width: 768px) {
+  .price-cards {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: space-between;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 18px 40px rgba(17, 17, 17, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.price-card:hover {
+  border-color: var(--line-strong);
+}
+
+/* Selection is emphasis, not a gate: the buttons work either way. */
+.price-card.is-selected {
+  border-color: var(--ink);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.06), 0 22px 50px rgba(17, 17, 17, 0.12);
+}
+
+/* The one to land on, inverted: ink where the other is paper. */
+.price-card.is-featured {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.price-card.is-featured.is-selected {
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.1), 0 26px 60px rgba(17, 17, 17, 0.28);
+}
+
+.price-card__badges {
+  position: absolute;
+  bottom: calc(100% + 0.7rem);
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.price-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  /* Lit like the marks they carry. */
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35), 0 0 22px rgba(245, 158, 11, 0.22);
+}
+
+/* The one piece of colour on the page. The glow is drawn on the mark itself
+   rather than behind the pill, so it reads as lit rather than highlighted. */
+.price-card__badge svg {
+  color: var(--accent);
+  filter: drop-shadow(0 0 4px var(--accent-glow)) drop-shadow(0 0 9px var(--accent-glow));
+  animation: mark-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes mark-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px var(--accent-glow)) drop-shadow(0 0 8px var(--accent-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px var(--accent-glow)) drop-shadow(0 0 15px var(--accent-glow));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card__badge svg {
+    animation: none;
+  }
+}
+
+.price-card__name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  /* Two lines reserved, as the line below it reserves two: between them they
+     hold the prices on the same line across both cards, whichever name wraps
+     at a given width. */
+  min-height: 2.2em;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.price-card.is-featured .price-card__name {
+  color: var(--paper);
+}
+
+@media (min-width: 1024px) {
+  .price-card__name {
+    font-size: 30px;
+  }
+}
+
+.price-card__summary {
+  margin-top: 0.75rem;
+  min-height: calc(2 * 1.7em);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.price-card.is-featured .price-card__summary {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.price-card__rule {
+  margin: 1.75rem 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.price-card.is-featured .price-card__rule {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* The number is the loudest thing on the card. */
+.price-card__price {
+  font-family: var(--font-display);
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.price-card.is-featured .price-card__price {
+  color: var(--paper);
+}
+
+.price-card__was {
+  margin-right: 0.45em;
+  font-size: 0.52em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  color: var(--ink-faint);
+  vertical-align: 0.42em;
+}
+
+.price-card.is-featured .price-card__was {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.price-card__saving {
+  display: inline-block;
+  margin-left: 0.55em;
+  padding: 0.45em 0.7em;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: #2a1a00;
+  font-size: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 0.95em;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.28);
+}
+
+.price-card__note {
+  margin-top: 0.75rem;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.price-card.is-featured .price-card__note {
+  color: var(--accent);
+}
+
+@media (min-width: 1024px) {
+  .price-card__price {
+    font-size: 64px;
+  }
+}
+
+.price-card__delivery {
+  margin-top: 0.75rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+}
+
+.price-card.is-featured .price-card__delivery {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.price-card__list {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.price-card__list li {
+  display: flex;
+  gap: 0.65rem;
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+.price-card.is-featured .price-card__list li {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.price-card__callout {
+  margin-top: 1.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.18) inset, 0 6px 22px rgba(245, 158, 11, 0.16);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.price-card.is-featured .price-card__callout {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.price-card__callout-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.7rem;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: #2a1a00;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
+}
+
+.price-card__callout-time {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+}
+
+.price-card__callout-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.price-card__cta {
+  display: block;
+  padding: 16px 22px;
+  border-radius: 9999px;
+  border: 1px solid var(--ink);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.price-card__cta:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Inverted again on the inverted card: paper button on ink. */
+.price-card.is-featured .price-card__cta {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.price-card.is-featured .price-card__cta:hover {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(255, 255, 255, 0.86);
+}
+
+/* The recommended card is the one to land on, so on a phone — where they
+   stack — it goes first rather than being the one you have to scroll for. */
+@media (max-width: 767px) {
+  .price-card.is-featured {
+    order: -1;
+  }
+}
+
+/* --- top menu --- */
+
+.top-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 45;
+}
+
+/* Ink, like the buttons it opens onto. Solid rather than pale because it rides
+   over the case studies' footage, where a wash would disappear on a bright
+   frame. */
+.top-nav__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.top-nav__toggle:hover {
+  background: #000000;
+  border-color: #000000;
+}
+
+.top-nav__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 16px;
+}
+
+.top-nav__bars span {
+  display: block;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.22s ease, opacity 0.18s ease;
+}
+
+/* The three bars fold into a cross while the panel is open. */
+.top-nav__toggle.is-open .top-nav__bars span:first-child {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.top-nav__toggle.is-open .top-nav__bars span:nth-child(2) {
+  opacity: 0;
+}
+
+.top-nav__toggle.is-open .top-nav__bars span:last-child {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+.top-nav__panel {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  transform-origin: top right;
+  display: flex;
+  flex-direction: column;
+  min-width: 14rem;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 18px 40px rgba(17, 17, 17, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.top-nav__link {
+  font: inherit;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.top-nav__link:hover {
+  color: var(--ink);
+  background: rgba(17, 17, 17, 0.05);
+}
+
+@media (max-width: 640px) {
+  .top-nav {
+    top: 12px;
+    right: 12px;
+  }
+
+  .top-nav__toggle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .top-nav__panel {
+    top: 48px;
+  }
+}
+
+/* The wordmark set inline in a sentence. Sized to the cap height of the type
+   around it rather than to a fixed pixel size, so it tracks the chapter type at
+   every breakpoint, and nudged down to sit on the baseline with the letters. */
+.inline-wordmark {
+  display: inline-block;
+  height: 0.78em;
+  width: auto;
+  vertical-align: baseline;
+  transform: translateY(0.08em);
+}
+
+/* --- site logo --- */
+
+/* Fixed, so it stays in the corner through the whole scroll story. Above the
+   orbit stages but below the waitlist bar, and never wider than a small corner
+   of a phone screen. */
+.site-logo {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink);
+  transition: opacity 0.2s;
+}
+
+.site-logo:hover {
+  opacity: 0.6;
+}
+
+.site-logo__stack {
+  position: relative;
+  display: block;
+}
+
+.site-logo__img {
+  display: block;
+  width: auto;
+  height: 28px;
+  max-width: 160px;
+  object-fit: contain;
+  transition: opacity 0.25s ease-out;
+}
+
+/* Stacked exactly over the dark one and faded in over the case studies. */
+.site-logo__img--white {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.site-logo.is-on-dark .site-logo__img--white {
+  opacity: 1;
+}
+
+.site-logo.is-on-dark .site-logo__img:not(.site-logo__img--white) {
+  opacity: 0;
+}
+
+/* The text stand-in needs the same treatment when there is no file yet. */
+.site-logo.is-on-dark .site-logo__text {
+  color: var(--paper);
+}
+
+.site-logo__text {
+  font-size: 18px;
+  transition: color 0.25s ease-out;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .site-logo {
+    top: 12px;
+    left: 12px;
+    padding: 4px;
+  }
+
+  .site-logo__img {
+    height: 22px;
+    max-width: 120px;
+  }
+
+  .site-logo__text {
+    font-size: 15px;
+  }
 }
 
 /* --- shared surfaces --- */
@@ -123,32 +798,88 @@ body {
 
 /* --- case studies backdrop --- */
 
-/* The white wash over the background video. Kept just short of opaque so the
-   footage still reads as a soft texture and the dot grid has something to sit
-   against; take it to 1 and both disappear. */
+/* A light wash over the background video — enough to take the edge off it and
+   let the card sit forward, not enough to hide it. */
 .cs-scrim {
-  background: rgba(255, 255, 255, var(--cs-scrim, 0.88));
+  background: rgba(255, 255, 255, var(--cs-scrim, 0.1));
 }
 
-/* Grid of white dots over the scrim. They show up where the footage behind is
-   darker, so the pattern breathes with the video rather than sitting flat. */
-.dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.95) 1.4px, transparent 1.5px);
-  background-size: 22px 22px;
-  background-position: center;
+/* The name buttons above the cards. Quiet until hovered or current, so the row
+   reads as a line of labels rather than a toolbar. */
+/* One line always, scrolled sideways when it doesn't fit. Wrapping instead put
+   three or four lines of names above the card on a phone, which left the card
+   itself no room. The scrollbar is hidden — the row reads as content, and it
+   fits outright on anything wider than a phone. */
+.cs-names {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* The case study card window. The chrome around it — eyebrow, dots, skip link
-   and arrow, plus the pinned section's own padding — is a fixed height, so what
-   is left for the card is the viewport minus a constant rather than a fraction
-   of it. A fixed height here pushed the eyebrow off the top of a 720px laptop
-   screen. The avatar is capped against viewport height for the same reason. */
+.cs-names::-webkit-scrollbar {
+  display: none;
+}
+
+/* Everything around the card sits on the video now rather than on paper, so it
+   carries a translucent white backing. Ink on footage is unreadable on a dark
+   shot, and white text would disappear on a bright one — a pale chip works
+   against either. */
+.cs-chip {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.cs-name-btn {
+  flex: none;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--ink-soft);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.cs-name-btn:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.cs-name-btn.is-active {
+  color: var(--paper);
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+/* The case study card window. It is whatever height the pinned section has left
+   once the chrome around it — eyebrow, name row, dots, skip link, arrow and the
+   section's own padding — has taken what it needs: the wrapper is the flex
+   column's stretchy item (.cs-frame below) and the window simply fills it.
+   Measuring the chrome into a constant instead meant re-measuring it every time
+   anything around the card moved, and being a few pixels out clipped the last
+   line of the longest quotes. */
 .cs-window {
-  /* 22.5rem is the measured height of everything else in the pinned area on a
-     tall screen — its padding, the eyebrow, the dots, the skip link and the
-     arrow. The short-screen value below is the same measurement once that
-     chrome has been trimmed. */
-  height: clamp(15rem, calc(100vh - var(--cs-chrome, 22.5rem)), 38rem);
+  height: 100%;
+}
+
+/* The stretchy wrapper: takes the leftover height, never more than a card's
+   worth of it. min-height: 0 is what lets it shrink below its contents on a
+   short screen rather than pushing the eyebrow off the top. */
+.cs-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 38rem;
 }
 
 /* Everything inside a card is sized in em against this, so the whole
@@ -159,13 +890,49 @@ body {
   font-size: min(clamp(10px, 1.52vh, 16px), 3.2vw, 16px);
 }
 
+.cs-avatar {
+  height: 10em;
+  width: 10em;
+}
+
+/* A phone. Tall enough not to be caught by the short-screen rules below, but
+   narrow enough that the quotes run long — the chrome gives up a little of its
+   breathing room, and the portrait a little of its size, so the last line of a
+   long quote stays on the card. */
+@media (max-width: 480px) and (min-height: 621px) {
+  .cs-pin .eyebrow {
+    margin-bottom: 1rem;
+  }
+
+  .cs-pin .cs-names {
+    margin-bottom: 0.75rem;
+  }
+
+}
+
+/* Screens too short to give the card a full window — an old 568px phone. The
+   type floor and the portrait both come down rather than the last line of the
+   quote being cut off, and what sits under the card is pulled in close. */
+@media (max-height: 620px) {
+  .cs-card-scale {
+    font-size: min(clamp(8px, 1.52vh, 16px), 3.2vw, 16px);
+  }
+
+  .cs-pin .cs-dots {
+    margin-top: 0.75rem;
+  }
+
+  .cs-pin .arrow-button {
+    margin-top: 0.5rem;
+  }
+}
+
 /* A short window — a 1366x768 or 1280x720 laptop, which is most laptops once
    browser chrome is taken off — has to give the card its room back. The chrome
    around it is a fixed height, so on a 720px screen it was taking more than
    half of what was available and pushing the eyebrow off the top. */
 @media (max-height: 820px) {
   .cs-pin {
-    --cs-chrome: 16rem;
     padding-top: 1.25rem;
   }
 
@@ -177,6 +944,34 @@ body {
      first thing to go when height is scarce. */
   .cs-skip-link {
     display: none;
+  }
+
+  /* Tighter chips too: their padding comes straight off the card. */
+  .cs-pin .cs-chip {
+    padding: 3px 10px;
+  }
+
+  .cs-pin .cs-names {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* A step's clip, run full bleed across the top of its card. It fills the band
+   rather than fitting inside it, so the three cards keep a level seam whatever
+   proportions the files have — the card's own overflow rounds its top corners.
+   The height is a band, not the clip's own shape, which is what keeps the three
+   aligned when the files differ. */
+.step-clip {
+  display: block;
+  width: 100%;
+  height: 168px;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 767px) {
+  .step-clip {
+    height: 180px;
   }
 }
 
@@ -228,15 +1023,23 @@ body {
   }
 }
 
-/* Phone. The text is close to full width here, so the ring is pushed out and
-   the tiles shrunk right down to leave the words a clear centre. */
+/* Phone. The text runs nearly the full width here, so a wide ring puts its
+   assets off the sides of the screen. The ellipse is turned on its end instead
+   — narrow across, tall up and down — which brings the assets inside the
+   viewport and sends them above and below the words rather than through them.
+   The mask follows suit: wide enough to keep the text clear, short enough that
+   the assets at the top and bottom of the orbit stay visible. */
 @media (max-width: 640px) {
   .chapter-stage {
-    --r-chapter: clamp(200px, 56vw, 280px);
-    --squash: 0.8;
-    --chapter-tile: 0.5;
-    --clear-w: 92%;
-    --clear-h: 44%;
+    --r-chapter: clamp(90px, 28vw, 130px);
+    --squash: 2.7;
+    --chapter-tile: 0.62;
+    /* The clear zone has to cover the text block, which on a phone runs to
+       roughly 140px either side of centre — a shorter one let assets cross the
+       last line. The orbit is pushed out to match, so the tiles at the top and
+       bottom still clear it at full strength. */
+    --clear-w: 70%;
+    --clear-h: 40%;
   }
 }
 
@@ -427,6 +1230,27 @@ body {
   );
 }
 
+/* The downward arrows that lead from one section to the next. A hairline disc
+   so they read as buttons against the page rather than as stray glyphs. */
+.arrow-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.arrow-button:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+}
+
 /* Motion only — no opacity pulse, so the arrow stays solid ink rather than
    dipping to grey on every cycle. */
 @keyframes bounce-gentle {
@@ -455,5 +1279,38 @@ body {
   .chapter-spin,
   .chapter-upright {
     animation: none;
+  }
+}
+
+/* Shorter than any phone held upright — a handset on its side, or a very old
+   small screen. The names row is the one piece of chrome the card can do
+   without: the dots, the arrows and a swipe all still move between cards. */
+@media (max-height: 500px) {
+  .cs-pin .cs-names {
+    display: none;
+  }
+}
+
+/* A phone, where the chrome around the card has the least room to give. The
+   menu is one button in the corner now and there is no bar across the foot of
+   the window, so the padding that was making way for both comes back to the
+   card — which is the section. */
+@media (max-width: 640px) {
+  .cs-pin {
+    padding-top: 3rem;
+    padding-bottom: 5rem;
+  }
+
+  .cs-pin .cs-dots {
+    margin-top: 0.75rem;
+  }
+
+  .cs-pin .arrow-button {
+    margin-top: 0.5rem;
+  }
+
+  .cs-avatar {
+    height: 8em;
+    width: 8em;
   }
 }

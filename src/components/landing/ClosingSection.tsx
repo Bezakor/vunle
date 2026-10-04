@@ -11,6 +11,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import OrbitField from './OrbitField';
+import PricingCards from './PricingCards';
 
 /**
  * The closing call to action. Hovering it bursts the landing page's assets out
@@ -66,8 +67,17 @@ export default function ClosingSection() {
       ref={ref}
       id="closing-cta"
       data-snap=""
+      // The two cards make this taller than the window on a phone, so it is a
+      // place to land but not one the page is pulled out of — the same rule the
+      // steps section follows.
+      data-snap-free=""
+      // pointermove as well as pointerenter: scrolling the section up to a
+      // stationary cursor never crosses its boundary, so enter alone left the
+      // burst waiting until the pointer happened to leave and come back. Any
+      // movement anywhere over the section now sets it off.
       onPointerEnter={() => setBurst(true)}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-44 text-center"
+      onPointerMove={() => setBurst(true)}
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-24 text-center md:pt-24"
     >
       <OrbitField spread={reduceMotion ? undefined : spread} opacity={reduceMotion ? undefined : opacity} />
 
@@ -87,8 +97,10 @@ export default function ClosingSection() {
         transition={{ duration: 0.9, delay: 0.25 }}
         className="relative z-10 mt-5 text-sm text-[var(--ink-soft)]"
       >
-        Join the waitlist below.
+        Pick where you want to start.
       </motion.p>
+
+      <PricingCards />
     </section>
   );
 }
